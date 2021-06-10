@@ -264,10 +264,18 @@ def getExistingRecipesNames(cuisine):
         recipeNames.append(str(recipe["recipeName"].encode("utf-8")))
     return recipeNames
 
-#Generative examples
 
-#City
-print(capitalize(cityNameFromCuisine(Cuisine.Moroccan)))
+# This line says that everything after will only be executed if you run the script directly,
+# and will not be run if you load the script from another module, like the Assembler :)
+if __name__ == "__main__":
+    #Generative examples
 
-#Recipe name
-#print(recipeNameFromCuisine(Cuisine.English, syllable_max_length = 3))
+    #City
+    print(capitalize(cityNameFromCuisine(Cuisine.Moroccan)))
+    print(capitalize(cityNameFromCuisine(Cuisine.English)))
+    print(capitalize(cityNameFromCuisine(Cuisine.French)))
+    print(capitalize(cityNameFromCuisine(Cuisine.German)))
+    print(capitalize(cityNameFromCuisine(Cuisine.Japanese)))
+
+    #Recipe name
+    print(recipeNameFromCuisine(Cuisine.French, syllable_max_length = 1))

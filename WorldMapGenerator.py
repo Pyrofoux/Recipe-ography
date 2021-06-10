@@ -53,7 +53,7 @@ def grassland_rules(neighbour_count):
     #If more than 5 neighbours are grassland, return grassland
     if(neighbour_count[Terrain.WATER.value]>=6):
         return Terrain.WATER.value
-    #If there are 7 or more grasslands about, have 20% chance of desert, 20% of mountains 
+    #If there are 7 or more grasslands about, have 20% chance of desert, 20% of mountains
     elif(neighbour_count[Terrain.GRASSLAND.value]>=7):
         choice = random.uniform(0, 1)
         if (choice<0.2):
@@ -125,7 +125,7 @@ def terrain_rule_iterations(inputMap, iterationCount):
     for i in range(iterationCount):
         inputMap = apply_terrain_rules(inputMap)
         map_history.append(inputMap)
-        print("Iteration count: " + repr(i))
+        #print("Iteration count: " + repr(i))
     return map_history
 
 def apply_culture_spread_rules(mapMatrix, inputCultureMatrix, cultureList):
@@ -136,7 +136,7 @@ def apply_culture_spread_rules(mapMatrix, inputCultureMatrix, cultureList):
 
     for i in range(MAPSIZE):
         for j in range(MAPSIZE):
-            #Check were not on a water tile or an already set culture 
+            #Check were not on a water tile or an already set culture
             if ((not mapMatrix[i][j] == Terrain.WATER.value)):
                 culture_neighbour_count = retrieve_neighbours(i,j,inputCultureMatrix)
                 updatedCultureMap[i][j] = culture_spread_rule(culture_neighbour_count, cultureDict, inputCultureMatrix[i][j])
@@ -174,7 +174,7 @@ def retrieve_neighbours(i, j, matrix):
         iRange[1] = i+1
     else:
         iRange[1] = i
-    
+
     if (j>0):
         jRange[0] = j-1
     else:
@@ -224,9 +224,9 @@ def display_world(matrix):
             elif matrix[i][j] == Terrain.DESERT.value:
                 print("D", end='')
             elif matrix[i][j] == Terrain.JUNGLE.value:
-                print("J", end='')                
+                print("J", end='')
             elif matrix[i][j] == Terrain.MOUNTAIN.value:
-                print("M", end='')                
+                print("M", end='')
             elif matrix[i][j] == Terrain.SNOW.value:
                 print("S", end='')
         print()
@@ -240,7 +240,7 @@ def display_world_int(matrix):
 #-------------------------------------------------------------------------------------
 #IMAGE GENERATION
 
-def gen_img_from_map_matrix(matrix):      
+def gen_img_from_map_matrix(matrix):
 
     return Image.fromarray(get_world_rgb_from_map_matrix(matrix), 'RGB')
 
@@ -260,11 +260,11 @@ def get_world_rgb_from_map_matrix(matrix):
             elif matrix[i][j] == Terrain.DESERT.value:
                 data[i1:i2,j1:j2]  = terrainColors[Terrain.DESERT.value]
             elif matrix[i][j] == Terrain.JUNGLE.value:
-                data[i1:i2,j1:j2]  = terrainColors[Terrain.JUNGLE.value]               
+                data[i1:i2,j1:j2]  = terrainColors[Terrain.JUNGLE.value]
             elif matrix[i][j] == Terrain.MOUNTAIN.value:
-                data[i1:i2,j1:j2]  = terrainColors[Terrain.MOUNTAIN.value]                 
+                data[i1:i2,j1:j2]  = terrainColors[Terrain.MOUNTAIN.value]
             elif matrix[i][j] == Terrain.SNOW.value:
-                data[i1:i2,j1:j2]  = terrainColors[Terrain.SNOW.value]   
+                data[i1:i2,j1:j2]  = terrainColors[Terrain.SNOW.value]
     return data
 
 def gen_img_from_culture_and_terrain_matrix(terrain_map, culture_map, culture_list):
@@ -362,7 +362,7 @@ def gen_central_island_start_map():
     return new_map
 
 def gen_culture_start_map(terrainMap, start_cultures):
-    
+
     width = len(terrainMap)
     height = len(terrainMap[0])
 
@@ -403,49 +403,53 @@ def generate_culture_matrix(terrainMap, cultureList, iterationCount):
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
-#TESTING
+
+# This line says that everything after will only be executed if you run the script directly,
+# and will not be run if you load the script from another module, like the Assembler :)
+if __name__ == "__main__":
+
+    #TESTING
 
 
-image_save_path = 'C:/Users/Ollie/Documents/ACADEMIA/IGGI PHD/Year 1 Modules/Game Dev 2/Food Maps Project/Output Images/'
+    image_save_path = 'C:/Users/Ollie/Documents/ACADEMIA/IGGI PHD/Year 1 Modules/Game Dev 2/Food Maps Project/Output Images/'
 
-#TESTING CENTRAL ISLAND GENERATION
-twenty_gen_map = generate_terrain_matrix(1, 20)
+    #TESTING CENTRAL ISLAND GENERATION
+    twenty_gen_map = generate_terrain_matrix(1, 20)
 
-final_map = twenty_gen_map[len(twenty_gen_map)-1]
+    final_map = twenty_gen_map[len(twenty_gen_map)-1]
 
-gen_img_from_map_matrix(final_map).show()
-save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestCentralOutput.gif'))
+    gen_img_from_map_matrix(final_map).show()
+    save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestCentralOutput.gif'))
 
-test_cultures = []
-test_cultures.append(Culture(1, "The Shire", [250,10,10]))
-test_cultures.append(Culture(2, "Mordor", [10,46,250]))
-test_cultures.append(Culture(3, "Rohan", [255,234,0]))
-test_cultures.append(Culture(4, "The Elves", [255,36,237]))
+    test_cultures = []
+    test_cultures.append(Culture(1, "The Shire", [250,10,10]))
+    test_cultures.append(Culture(2, "Mordor", [10,46,250]))
+    test_cultures.append(Culture(3, "Rohan", [255,234,0]))
+    test_cultures.append(Culture(4, "The Elves", [255,36,237]))
 
-#test_culture_map = gen_culture_start_map(final_map, test_cultures)
+    #test_culture_map = gen_culture_start_map(final_map, test_cultures)
 
-#display_world_int(test_culture_map)
+    #display_world_int(test_culture_map)
 
-#culture_rgb_map = get_culture_and_terrain_rgb(final_map, test_culture_map, test_cultures)
+    #culture_rgb_map = get_culture_and_terrain_rgb(final_map, test_culture_map, test_cultures)
 
-#Image.fromarray((culture_rgb_map)).show()
+    #Image.fromarray((culture_rgb_map)).show()
 
-#print(test_culture_map.shape[0])
+    #print(test_culture_map.shape[0])
 
-thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
+    thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
 
-final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
+    final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
 
-#display_world_int(final_culture_map)
+    #display_world_int(final_culture_map)
 
-Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
-save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpread.gif'))
+    Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
+    save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpread.gif'))
 
-#TESTING FULLY RANDOM MAP GENERATION
+    #TESTING FULLY RANDOM MAP GENERATION
 
-#start_map = gen_noise_map()
-#get_world_image(start_map).show()
-#twenty_gen_map = terrain_rule_iterations(start_map, 20)
-#get_world_image(twenty_gen_map[len(twenty_gen_map)-1]).show()
-#save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestOutput.gif'))
-
+    #start_map = gen_noise_map()
+    #get_world_image(start_map).show()
+    #twenty_gen_map = terrain_rule_iterations(start_map, 20)
+    #get_world_image(twenty_gen_map[len(twenty_gen_map)-1]).show()
+    #save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestOutput.gif'))
