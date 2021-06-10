@@ -125,7 +125,7 @@ def terrain_rule_iterations(inputMap, iterationCount):
     for i in range(iterationCount):
         inputMap = apply_terrain_rules(inputMap)
         map_history.append(inputMap)
-        print("Iteration count: " + repr(i))
+        #print("Iteration count: " + repr(i))
     return map_history
 
 def apply_culture_spread_rules(mapMatrix, inputCultureMatrix, cultureList):
@@ -148,7 +148,7 @@ def culture_spread_iterations(mapMatrix, cultureMatrix, cultureList, iterationCo
     map_history.append(cultureMatrix)
 
     for i in range(iterationCount):
-        print("Culture spread iteration count: " + repr(i))
+        #print("Culture spread iteration count: " + repr(i))
         cultureMatrix = apply_culture_spread_rules(mapMatrix, cultureMatrix, cultureList)
         map_history.append(cultureMatrix)
     return map_history
@@ -435,8 +435,6 @@ test_cultures.append(Culture(4, "The Elves", [255,36,237]))
 thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
 
 final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
-
-#display_world_int(final_culture_map)
 
 Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
 save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpread.gif'))
