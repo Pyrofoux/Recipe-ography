@@ -76,15 +76,22 @@ def snow_rules(neighbour_count):
     return Terrain.SNOW.value
 
 #Define rules for how culture spread
-def culture_spread_rule(cult_neighbour_count, cultureDict):
+def culture_spread_rule(cult_neighbour_count, cultureDict, currValue):
     return_culture_id = 0
     max_neighbours = 0
-    #Currently, spread if there is a neighbour
+    #Currently, adopt culture of any neighbour
     for key in cultureDict:
         if (cult_neighbour_count[cultureDict[key].culture_id]>max_neighbours):
             return_culture_id = key
             max_neighbours = cult_neighbour_count[cultureDict[key].culture_id]
-    return return_culture_id
+    choice = random.uniform(0, 1)
+    if (choice<(0.1*max_neighbours)):
+        return return_culture_id
+    #Culture death chance
+    #elif(choice>0.8):
+        #return 0
+    else:
+        return currValue
 
 def apply_terrain_rules(mapMatrix):
 
@@ -125,34 +132,25 @@ def apply_culture_spread_rules(mapMatrix, inputCultureMatrix, cultureList):
 
     cultureDict = gen_culture_dict(cultureList)
 
-    #display_world_int(inputCultureMatrix)
-    #print(inputCultureMatrix)
-
-    print(len(inputCultureMatrix))
-
-    updatedCultureMap = np.zeros((MAPSIZE, MAPSIZE))
+    updatedCultureMap = np.zeros((MAPSIZE, MAPSIZE), dtype=int)
 
     for i in range(MAPSIZE):
         for j in range(MAPSIZE):
             #Check were not on a water tile or an already set culture 
             if ((not mapMatrix[i][j] == Terrain.WATER.value)):
                 culture_neighbour_count = retrieve_neighbours(i,j,inputCultureMatrix)
-                updatedCultureMap[i][j] = culture_spread_rule(culture_neighbour_count, cultureDict)
+                updatedCultureMap[i][j] = culture_spread_rule(culture_neighbour_count, cultureDict, inputCultureMatrix[i][j])
+    return updatedCultureMap
 
 def culture_spread_iterations(mapMatrix, cultureMatrix, cultureList, iterationCount):
 
     map_history = []
-    map_history.append(mapMatrix)
-
-    tempCultureMatrix = np.copy(cultureMatrix)
-
-    #print(cultureMatrix.shape[0])
-    #display_world_int(tempCultureMatrix)
+    map_history.append(cultureMatrix)
 
     for i in range(iterationCount):
-        tempCultureMatrix = apply_culture_spread_rules(mapMatrix, tempCultureMatrix, cultureList)
-        map_history.append(tempCultureMatrix)
         print("Culture spread iteration count: " + repr(i))
+        cultureMatrix = apply_culture_spread_rules(mapMatrix, cultureMatrix, cultureList)
+        map_history.append(cultureMatrix)
     return map_history
 
 #-------------------------------------------------------------------------------------
@@ -269,6 +267,9 @@ def get_world_rgb_from_map_matrix(matrix):
                 data[i1:i2,j1:j2]  = terrainColors[Terrain.SNOW.value]   
     return data
 
+def gen_img_from_culture_and_terrain_matrix(terrain_map, culture_map, culture_list):
+    return Image.fromarray(get_culture_and_terrain_rgb(terrain_map, culture_map, culture_list), 'RGB')
+
 def get_culture_and_terrain_rgb(terrain_map, culture_map, culture_list):
     culture_pixel_offset = 2
 
@@ -297,14 +298,18 @@ def get_culture_from_array(cultures, id):
             return_culture = cultures[i]
     return return_culture
 
-def save_history_gif(inputMaps, savePath):
+def save_terrain_history_gif(inputMaps, savePath):
 
     mapImages = []
     for i in range(len(inputMaps)-1):
         mapImages.append(gen_img_from_map_matrix(inputMaps[i]))
     mapImages[0].save(savePath, save_all=True, append_images = mapImages[1:], optimize=False, duration=500, loop=0)
 
-
+def save_culture_history_gif(terrainMap, cultureHistory, cultureList, savePath):
+    images = []
+    for i in range(len(cultureHistory)-1):
+        images.append(gen_img_from_culture_and_terrain_matrix(terrainMap, cultureHistory[i],cultureList))
+    images[0].save(savePath, save_all=True, append_images = images[1:], optimize=False, duration=50, loop=0)
 #-----------------------------------------------------------------------------------------
 #INITIAL MAP GENERATION FUNCTIONS
 
@@ -386,20 +391,19 @@ def gen_culture_start_map(terrainMap, start_cultures):
 image_save_path = 'C:/Users/Ollie/Documents/ACADEMIA/IGGI PHD/Year 1 Modules/Game Dev 2/Food Maps Project/Output Images/'
 
 #TESTING CENTRAL ISLAND GENERATION
-centre_biased_start_map = gen_central_island_start_map()
+centre_biased_start_map = gen_start_map()
 gen_img_from_map_matrix(centre_biased_start_map).show()
 twenty_gen_map = terrain_rule_iterations(centre_biased_start_map, 20)
 final_map = twenty_gen_map[len(twenty_gen_map)-1]
 
 gen_img_from_map_matrix(final_map).show()
-save_history_gif(twenty_gen_map, (image_save_path+'TestCentralOutput.gif'))
-
-
+save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestCentralOutput.gif'))
 
 test_cultures = []
 test_cultures.append(Culture(1, "The Shire", [250,10,10]))
 test_cultures.append(Culture(2, "Mordor", [10,46,250]))
 test_cultures.append(Culture(3, "Rohan", [255,234,0]))
+test_cultures.append(Culture(4, "The Elves", [255,36,237]))
 
 test_culture_map = gen_culture_start_map(final_map, test_cultures)
 
@@ -411,14 +415,14 @@ Image.fromarray((culture_rgb_map)).show()
 
 #print(test_culture_map.shape[0])
 
-thirty_culture_spreads = culture_spread_iterations(final_map, test_culture_map, test_cultures, 30)
+thirty_culture_spreads = culture_spread_iterations(final_map, test_culture_map, test_cultures, 200)
 
 final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
 
-display_world_int(final_culture_map)
+#display_world_int(final_culture_map)
 
-get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures).show()
-#save_history_gif(thirty_culture_spreads, (image_save_path+'CultureSpread.gif'))
+Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
+save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpread.gif'))
 
 #TESTING FULLY RANDOM MAP GENERATION
 
@@ -426,5 +430,5 @@ get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures).show()
 #get_world_image(start_map).show()
 #twenty_gen_map = terrain_rule_iterations(start_map, 20)
 #get_world_image(twenty_gen_map[len(twenty_gen_map)-1]).show()
-#save_history_gif(twenty_gen_map, (image_save_path+'TestOutput.gif'))
+#save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestOutput.gif'))
 
