@@ -315,7 +315,7 @@ def save_culture_history_gif(terrainMap, cultureHistory, cultureList, savePath):
 
 #Generate a starting map
 #Comprised of random static out of water and grassland tiles
-def gen_start_map():
+def gen_noise_map():
     #Instantiate matrix representing our world map
     mapSize = (MAPSIZE,MAPSIZE)
 
@@ -384,6 +384,24 @@ def gen_culture_start_map(terrainMap, start_cultures):
     return culture_map
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
+#FULL RUN METHODS
+def generate_terrain_matrix(startMapType, iterationCount):
+    startMap = np.zeros((MAPSIZE, MAPSIZE), dtype=int)
+    #Decide on start map type
+    if (startMapType==1):
+        startMap = gen_noise_map()
+    elif (startMapType==2):
+        startMap = gen_central_island_start_map()
+    else:
+        startMap = gen_noise_map()
+    return terrain_rule_iterations(startMap, iterationCount)
+
+def generate_culture_matrix(terrainMap, cultureList, iterationCount):
+    culture_start_positions = gen_culture_start_map(terrainMap, cultureList)
+    return culture_spread_iterations(terrainMap,culture_start_positions, cultureList, iterationCount)
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------#
 
 #TESTING
 
@@ -391,9 +409,8 @@ def gen_culture_start_map(terrainMap, start_cultures):
 image_save_path = 'C:/Users/Ollie/Documents/ACADEMIA/IGGI PHD/Year 1 Modules/Game Dev 2/Food Maps Project/Output Images/'
 
 #TESTING CENTRAL ISLAND GENERATION
-centre_biased_start_map = gen_start_map()
-gen_img_from_map_matrix(centre_biased_start_map).show()
-twenty_gen_map = terrain_rule_iterations(centre_biased_start_map, 20)
+twenty_gen_map = generate_terrain_matrix(1, 20)
+
 final_map = twenty_gen_map[len(twenty_gen_map)-1]
 
 gen_img_from_map_matrix(final_map).show()
@@ -405,17 +422,17 @@ test_cultures.append(Culture(2, "Mordor", [10,46,250]))
 test_cultures.append(Culture(3, "Rohan", [255,234,0]))
 test_cultures.append(Culture(4, "The Elves", [255,36,237]))
 
-test_culture_map = gen_culture_start_map(final_map, test_cultures)
+#test_culture_map = gen_culture_start_map(final_map, test_cultures)
 
 #display_world_int(test_culture_map)
 
-culture_rgb_map = get_culture_and_terrain_rgb(final_map, test_culture_map, test_cultures)
+#culture_rgb_map = get_culture_and_terrain_rgb(final_map, test_culture_map, test_cultures)
 
-Image.fromarray((culture_rgb_map)).show()
+#Image.fromarray((culture_rgb_map)).show()
 
 #print(test_culture_map.shape[0])
 
-thirty_culture_spreads = culture_spread_iterations(final_map, test_culture_map, test_cultures, 200)
+thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
 
 final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
 
@@ -426,7 +443,7 @@ save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_
 
 #TESTING FULLY RANDOM MAP GENERATION
 
-#start_map = gen_start_map()
+#start_map = gen_noise_map()
 #get_world_image(start_map).show()
 #twenty_gen_map = terrain_rule_iterations(start_map, 20)
 #get_world_image(twenty_gen_map[len(twenty_gen_map)-1]).show()
