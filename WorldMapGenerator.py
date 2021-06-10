@@ -1,10 +1,11 @@
 import random
 import numpy as np
 import math
-from enum import Enum, unique
+from enum import Enum, IntEnum, unique
 from PIL import Image
 from collections import Counter
 from PIL import Image, ImageDraw
+from perlin_noise import PerlinNoise
 
 #-------------------------------------------------------------------------------
 #CLASSES & PARAMETERS
@@ -16,7 +17,7 @@ landChance = 0.5
 pixelSize = 10
 
 @unique
-class Terrain(Enum):
+class Terrain(IntEnum):
     WATER = 1
     GRASSLAND = 2
     DESERT = 3
@@ -32,73 +33,179 @@ class Culture:
     culture_id = -1
     culture_name = ""
     culture_color = [0,0,0]
+    culture_can_traverse_water = False
 
-    def __init__(self, id, name, color):
+    def __init__(self, id, name, color, water_traverser):
         self.culture_id = id
         self.culture_name = name
         self.culture_color = color
+        self.culture_can_traverse_water = water_traverser
 #-----------------------------------------------------
 #CELLULAR AUTOMATA RULES
 
 #Define Cellular Automata Rules for every terrain type
 
 def water_rules(neighbour_count):
-    #If more than 5 neighbours are grassland, return grassland
-    if(neighbour_count[Terrain.GRASSLAND.value]>=5):
-        return Terrain.GRASSLAND.value
-    else:
-        return Terrain.WATER.value
 
+<<<<<<< Updated upstream
 def grassland_rules(neighbour_count):
     #If more than 5 neighbours are grassland, return grassland
     if(neighbour_count[Terrain.WATER.value]>=6):
         return Terrain.WATER.value
     #If there are 7 or more grasslands about, have 20% chance of desert, 20% of mountains
     elif(neighbour_count[Terrain.GRASSLAND.value]>=7):
+=======
+    return_tiletype = Terrain.WATER.value
+    #If four or less neighbours are water, turn into grassland with X chance
+    if(neighbour_count[Terrain.WATER.value]<=4):
+>>>>>>> Stashed changes
         choice = random.uniform(0, 1)
-        if (choice<0.2):
-            return Terrain.MOUNTAIN.value
-        elif(choice >0.8):
-            return Terrain.DESERT.value
+        if (choice<0.5):    
+            return_tiletype = Terrain.GRASSLAND.value
+    return return_tiletype
+
+def grassland_rules(neighbour_count):
+
+    return_tiletype = Terrain.GRASSLAND.value
+
+    return_tiletype = multiuse_jungle_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_desert_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_snow_spread_rule(neighbour_count, return_tiletype)
+    return_tiletype = multiuse_mountain_spawn_and_chain_rule(neighbour_count,return_tiletype)
+    return_tiletype= multiuse_water_spread_rule(neighbour_count,return_tiletype)
+
     #Default, return starting value
-    return Terrain.GRASSLAND.value
+    return return_tiletype
 
 def desert_rules(neighbour_count):
-    return Terrain.DESERT.value
+    return_tiletype = Terrain.DESERT.value
+
+    #If theres water nearby, chance of switching back to grassland
+    if(neighbour_count[Terrain.WATER.value]>=1):
+        choice = random.uniform(0, 1)
+        if (choice<0.5):
+            return_tiletype = Terrain.GRASSLAND.value
+    #Small chance of grassland spreading
+    elif(neighbour_count[Terrain.GRASSLAND.value]>=1):
+        choice = random.uniform(0, 1)
+        if (choice<0.1):
+            return_tiletype = Terrain.GRASSLAND.value
+    return_tiletype = multiuse_jungle_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_snow_spread_rule(neighbour_count, return_tiletype)
+    return_tiletype = multiuse_mountain_spawn_and_chain_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_water_spread_rule(neighbour_count,return_tiletype)
+    return return_tiletype
 
 def jungle_rules(neighbour_count):
-    return Terrain.JUNGLE.value
+    return_tiletype = Terrain.JUNGLE.value
+
+    return_tiletype = multiuse_snow_spread_rule(neighbour_count, return_tiletype)
+    return_tiletype = multiuse_desert_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_mountain_spawn_and_chain_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_water_spread_rule(neighbour_count,return_tiletype)
+    return return_tiletype
 
 def mountain_rules(neighbour_count):
-    return Terrain.MOUNTAIN.value
+    return_tiletype = Terrain.MOUNTAIN.value
+    #If theres too many mountains around,  x %chance of turn into most common neighbour
+    if(neighbour_count[Terrain.MOUNTAIN.value]>=3):
+        choice = random.uniform(0, 1)
+        if (choice<0.6):
+            return_tiletype= get_most_commom_tiletype_from_neighbours(neighbour_count)
+    else:
+        return_tiletype = Terrain.MOUNTAIN.value
+    return_tiletype = multiuse_water_spread_rule(neighbour_count,return_tiletype)
+    return return_tiletype
 
 def snow_rules(neighbour_count):
-    return Terrain.SNOW.value
+    return_tiletype = Terrain.SNOW.value
+    return_tiletype = multiuse_desert_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_jungle_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_mountain_spawn_and_chain_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_water_spread_rule(neighbour_count,return_tiletype)
+    return return_tiletype
+
+
+def multiuse_mountain_spawn_and_chain_rule(neighbour_count, input_value):
+    return_tiletype = input_value
+    #If theres 2 or 3 local mountains, chance of becoming one
+    if(neighbour_count[Terrain.MOUNTAIN.value] in (1,2,3) ):
+        choice = random.uniform(0, 1)
+        if (choice<0.1):
+            return_tiletype = Terrain.MOUNTAIN.value
+    #If 2 or less neighbouring tiles are water, chance of spawning mountains
+    if(neighbour_count[Terrain.WATER.value]<=1):
+        choice = random.uniform(0, 1)
+        if (choice<0.001):
+            return_tiletype = Terrain.MOUNTAIN.value
+    return return_tiletype
+
+#If more than X water tiles near by, X% chance of spreading
+def multiuse_water_spread_rule(neighbour_count, input_value):
+    if(neighbour_count[Terrain.WATER.value]>=4):
+        choice = random.uniform(0, 1)
+        #Base odds on amount of tiles of type nearby
+        bound = (0.05 *neighbour_count[Terrain.WATER.value])
+        if (choice<bound):
+            return Terrain.WATER.value
+    #Default, return self
+    return input_value
+
+def multiuse_snow_spread_rule(neighbour_count, input_value):
+    if(neighbour_count[Terrain.SNOW.value]>=3):
+        choice = random.uniform(0, 1)
+        #Base odds on amount of tiles of type nearby
+        bound = (0.1 *neighbour_count[Terrain.SNOW.value])
+        if (choice>bound):
+            return Terrain.SNOW.value
+    #Default, return self
+    return input_value
+
+def multiuse_jungle_spread_rule(neighbour_count, input_value):
+    if(neighbour_count[Terrain.JUNGLE.value]>=3):
+        choice = random.uniform(0, 1)
+        #Base odds on amount of tiles of type nearby
+        bound = (0.15 *neighbour_count[Terrain.JUNGLE.value])
+        if (choice>bound):
+            return Terrain.JUNGLE.value
+    #Default, return self
+    return input_value
+
+def multiuse_desert_spread_rule(neighbour_count, input_value):
+    if(neighbour_count[Terrain.DESERT.value]>=3):
+        choice = random.uniform(0, 1)
+        #Base odds on amount of tiles of type nearby
+        bound = (0.15 *neighbour_count[Terrain.DESERT.value])
+        if (choice>bound):        
+            return Terrain.DESERT.value
+    #Default, return self
+    return input_value
 
 #Define rules for how culture spread
-def culture_spread_rule(cult_neighbour_count, cultureDict, currValue):
+def culture_spread_rule(cult_neighbour_count, cultureDict, currValue, terrainType):
     return_culture_id = 0
     max_neighbours = 0
-    #Currently, adopt culture of any neighbour
+    #Currently, adopt culture of any neighbour. If multiple neighbour cultures, pick the one with most neighbour tiles
     for key in cultureDict:
-        if (cult_neighbour_count[cultureDict[key].culture_id]>max_neighbours):
+        #Adopt if most populous neighbour, but only if the tile is not water or culture can traverse water
+        if (cult_neighbour_count[cultureDict[key].culture_id]>max_neighbours and( (not terrainType==Terrain.WATER.value) or cultureDict[key].culture_can_traverse_water)):
             return_culture_id = key
             max_neighbours = cult_neighbour_count[cultureDict[key].culture_id]
     choice = random.uniform(0, 1)
     if (choice<(0.1*max_neighbours)):
         return return_culture_id
     #Culture death chance
-    #elif(choice>0.8):
-        #return 0
+    elif(choice>0.8):
+        return 0
     else:
         return currValue
 
 def apply_terrain_rules(mapMatrix):
 
-    updatedMap = np.zeros((len(mapMatrix), len(mapMatrix[0])))
+    updatedMap = np.zeros((MAPSIZE, MAPSIZE), dtype=int)
 
-    for i in range(mapMatrix.shape[0]):
-        for j in range(mapMatrix.shape[1]):
+    for i in range(MAPSIZE):
+        for j in range(MAPSIZE):
             neighbour_count = retrieve_neighbours(i,j,mapMatrix)
             if mapMatrix[i][j] == Terrain.WATER.value:
                 updatedMap[i][j] = water_rules(neighbour_count)
@@ -136,10 +243,15 @@ def apply_culture_spread_rules(mapMatrix, inputCultureMatrix, cultureList):
 
     for i in range(MAPSIZE):
         for j in range(MAPSIZE):
+<<<<<<< Updated upstream
             #Check were not on a water tile or an already set culture
             if ((not mapMatrix[i][j] == Terrain.WATER.value)):
                 culture_neighbour_count = retrieve_neighbours(i,j,inputCultureMatrix)
                 updatedCultureMap[i][j] = culture_spread_rule(culture_neighbour_count, cultureDict, inputCultureMatrix[i][j])
+=======
+            culture_neighbour_count = retrieve_neighbours(i,j,inputCultureMatrix)
+            updatedCultureMap[i][j] = culture_spread_rule(culture_neighbour_count, cultureDict, inputCultureMatrix[i][j], mapMatrix[i][j])
+>>>>>>> Stashed changes
     return updatedCultureMap
 
 def culture_spread_iterations(mapMatrix, cultureMatrix, cultureList, iterationCount):
@@ -211,6 +323,14 @@ def gen_culture_dict(culture_list):
 def pythag(a, b):
     return math.sqrt(a*a + b*b)
 
+def get_most_commom_tiletype_from_neighbours(counter):
+    maxvalue = -1
+    return_id = -1
+    for key in counter:
+        if (counter[key]>maxvalue):
+         maxvalue = counter[key]
+         return_id = key
+    return return_id
 
 #Print world matrix to console
 #Mainly for debugging
@@ -247,8 +367,8 @@ def gen_img_from_map_matrix(matrix):
 def get_world_rgb_from_map_matrix(matrix):
     w, h = len(matrix)*pixelSize, len(matrix[0])*pixelSize
     data = np.zeros((h, w, 3), dtype=np.uint8)
-    for i in range(matrix.shape[0]):
-        for j in range(matrix.shape[1]):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
             i1 = (i*pixelSize)
             i2 = ((i+1)*pixelSize)
             j1 = (j*pixelSize)
@@ -334,11 +454,11 @@ def gen_noise_map():
 
 def gen_central_island_start_map():
     #Instantiate matrix representing our world map
-    mapSize = (MAPSIZE,MAPSIZE)
+    map_dimensions = (MAPSIZE,MAPSIZE)
 
-    new_map = np.ones(mapSize)
-    for i in range(len(new_map)):
-        for j in range(len(new_map[0])):
+    new_map = np.ones(map_dimensions)
+    for i in range(MAPSIZE):
+        for j in range(MAPSIZE):
 
 
             #Increased change of grass closer to the centre of the map
@@ -349,7 +469,7 @@ def gen_central_island_start_map():
 
             centreDist = pythag(iCentreDist,jCentreDist)
 
-            grasslandChance = centreDist-0.1
+            grasslandChance = centreDist-0.2
 
             # choose a number between 0-1
             choice = random.uniform(0, 1)
@@ -360,6 +480,71 @@ def gen_central_island_start_map():
                 new_map[i][j] = Terrain.WATER.value
     print("Starting map generated")
     return new_map
+
+def gen_perlin_noise_map():
+    noise1 = PerlinNoise(octaves=3)
+    noise2 = PerlinNoise(octaves=6)
+    noise3 = PerlinNoise(octaves=12)
+    noise4 = PerlinNoise(octaves=24)
+
+    new_map = []
+    for i in range(MAPSIZE):
+        row = []
+        for j in range(MAPSIZE):
+            noise_val =         noise1([i/MAPSIZE, j/MAPSIZE])
+            noise_val += 0.5  * noise2([i/MAPSIZE, j/MAPSIZE])
+            noise_val += 0.25 * noise3([i/MAPSIZE, j/MAPSIZE])
+            noise_val += 0.125* noise4([i/MAPSIZE, j/MAPSIZE])
+
+            row.append(noise_val)
+        new_map.append(row)
+    #Make noise terrainy
+    for i in range(MAPSIZE):
+        for j in range(MAPSIZE):
+            #Add uncertainty to make boundries fuzzier
+            choice = random.uniform(0, 0.1)
+            if(choice<new_map[i][j]):
+                new_map[i][j] = Terrain.GRASSLAND.value
+            else:
+                new_map[i][j] = Terrain.WATER.value
+
+            #if (new_map[i][j]>0.06):
+            #    new_map[i][j] = Terrain.GRASSLAND.value
+            #else:
+            #    new_map[i][j] = Terrain.WATER.value
+    return new_map
+
+def gen_banded_noise_map():
+    return terrain_band_map(gen_noise_map())
+
+def gen_banded_central_map():
+    return terrain_band_map(gen_central_island_start_map())
+
+def gen_banded_perlin_map():
+    return terrain_band_map(gen_perlin_noise_map())
+
+#Process a terrain map, and impose terrain bands on it
+#Intended to alter the initial seed map which starts the generation
+def terrain_band_map(terrainMap):
+    bands = np.linspace(0, MAPSIZE, 8, dtype=int)
+
+    for i in range(MAPSIZE):
+        for j in range(MAPSIZE):
+            if (not terrainMap[i][j] == Terrain.WATER.value):
+                #Set snow for upper and lower bounds
+                if ((bands[0]<=i<=bands[1]) or (bands[6]<i<bands[7])):
+                    terrainMap[i][j] = Terrain.SNOW.value
+                #Set grassland for 2nd inner bounds
+                elif ((bands[1]<i<=bands[2]) or (bands[5]<=i<bands[6])):
+                    terrainMap[i][j] = Terrain.GRASSLAND.value
+                elif ((bands[2]<i<=bands[3]) or (bands[4]<=i<bands[5])):
+                    terrainMap[i][j] = Terrain.JUNGLE.value
+                elif (bands[3]<i<bands[4]):
+                    terrainMap[i][j] = Terrain.DESERT.value
+                #Default (should never be reached)
+                else:
+                    terrainMap[i][j] = Terrain.GRASSLAND.value
+    return terrainMap
 
 def gen_culture_start_map(terrainMap, start_cultures):
 
@@ -392,6 +577,12 @@ def generate_terrain_matrix(startMapType, iterationCount):
         startMap = gen_noise_map()
     elif (startMapType==2):
         startMap = gen_central_island_start_map()
+    elif (startMapType==3):
+        startMap = gen_banded_noise_map()
+    elif (startMapType==4):
+        startMap = gen_banded_central_map()
+    elif (startMapType==5):
+        startMap = gen_banded_perlin_map()
     else:
         startMap = gen_noise_map()
     return terrain_rule_iterations(startMap, iterationCount)
@@ -413,11 +604,24 @@ if __name__ == "__main__":
 
     image_save_path = 'C:/Users/Ollie/Documents/ACADEMIA/IGGI PHD/Year 1 Modules/Game Dev 2/Food Maps Project/Output Images/'
 
+<<<<<<< Updated upstream
     #TESTING CENTRAL ISLAND GENERATION
     twenty_gen_map = generate_terrain_matrix(1, 20)
+=======
+
+#test_start = gen_perlin_noise_map()
+#Image.fromarray(get_world_rgb_from_map_matrix(test_start)).show()
+#display_world_int(test_start)
+#banded_start = terrain_band_map(test_start)
+#Image.fromarray(get_world_rgb_from_map_matrix(banded_start)).show()
+
+#TESTING ISLAND GENERATION
+twenty_gen_map = generate_terrain_matrix(5, 20)
+>>>>>>> Stashed changes
 
     final_map = twenty_gen_map[len(twenty_gen_map)-1]
 
+<<<<<<< Updated upstream
     gen_img_from_map_matrix(final_map).show()
     save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestCentralOutput.gif'))
 
@@ -426,6 +630,24 @@ if __name__ == "__main__":
     test_cultures.append(Culture(2, "Mordor", [10,46,250]))
     test_cultures.append(Culture(3, "Rohan", [255,234,0]))
     test_cultures.append(Culture(4, "The Elves", [255,36,237]))
+=======
+gen_img_from_map_matrix(final_map).show()
+save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestFuzzyPerlinOutput.gif'))
+
+#display_world_int(final_map)
+
+test_cultures = []
+test_cultures.append(Culture(1, "The Shire", [250,10,10], True))
+test_cultures.append(Culture(2, "Mordor", [10,46,250], True))
+test_cultures.append(Culture(3, "Rohan", [255,234,0], True))
+test_cultures.append(Culture(4, "The Elves", [255,36,237], True))
+test_cultures.append(Culture(5, "The Dwarfs", [148, 107, 70], False))
+test_cultures.append(Culture(6, "The Bobs", [24, 48, 48], False))
+test_cultures.append(Culture(7, "Daveland", [40, 24, 48], False))
+test_cultures.append(Culture(8, "Foo", [179, 66, 152], False))
+test_cultures.append(Culture(9, "Bar", [145, 77, 92], False))
+test_cultures.append(Culture(10, "The Dudes", [207, 143, 120], False))
+>>>>>>> Stashed changes
 
     #test_culture_map = gen_culture_start_map(final_map, test_cultures)
 
@@ -437,11 +659,24 @@ if __name__ == "__main__":
 
     #print(test_culture_map.shape[0])
 
+<<<<<<< Updated upstream
     thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
 
     final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
 
     #display_world_int(final_culture_map)
+=======
+#------------------------------------------
+#thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
+
+#final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
+
+#Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
+#save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpreadPatchy.gif'))
+#print("Generation Completed")
+#------------------------------------------------
+
+>>>>>>> Stashed changes
 
     Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
     save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpread.gif'))
