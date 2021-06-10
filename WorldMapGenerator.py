@@ -148,7 +148,7 @@ def culture_spread_iterations(mapMatrix, cultureMatrix, cultureList, iterationCo
     map_history.append(cultureMatrix)
 
     for i in range(iterationCount):
-        print("Culture spread iteration count: " + repr(i))
+        #print("Culture spread iteration count: " + repr(i))
         cultureMatrix = apply_culture_spread_rules(mapMatrix, cultureMatrix, cultureList)
         map_history.append(cultureMatrix)
     return map_history
