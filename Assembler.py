@@ -8,8 +8,8 @@ from CultureNameGen import *
 # They could be stored in a settings.ini file instead
 
 settings = {}
-settings["mapgen_iterationCount"]        = 10
-settings["mapgen_startMapType"]          = 1
+settings["mapgen_iterationCount"]        = 30
+settings["mapgen_startMapType"]          = 5
 settings["culturespread_iterationCount"] = 100
 
 
@@ -30,14 +30,15 @@ output["terrain_map"] = terrain_map = terrain_maps.tolist()[-1] #Only the last t
 # Generates culture names
 
 
-culture_names = ["The Shire","Mordor","Rohan","The Elves"]
+culture_names = generateNameForEachCuisine()[0:5]
 
 cultureList = []
 
 i = 0
 for name in culture_names:
     i+=1 # Culture id starts at 1
-    cultureList.append(Culture(i, name, [i,i,i]))
+    water_traverser = bool(random.getrandbits(1))
+    cultureList.append(Culture(i, name, [i,i,i], water_traverser))
 
 
 output["culture_names"] = culture_names

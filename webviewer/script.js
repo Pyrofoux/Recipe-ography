@@ -2,11 +2,11 @@
 
 let settings = {};
 settings.cellSize = 6;
-// settings.culture_color_transparency = 0;
-// settings.culture_color_transparency_hover = 0.9;
+settings.culture_color_transparency = 0;
+settings.culture_color_transparency_hover = 0.9;
 
-settings.culture_color_transparency = 0.95;
-settings.culture_color_transparency_hover = 0.95;
+// settings.culture_color_transparency = 0.80;
+// settings.culture_color_transparency_hover = 0.20;
 
 let tyle2color =
 [
@@ -76,7 +76,8 @@ function drawMap()
     {
       if(ui.culture_hover == culture_id)
       {
-        colorSquare(x,y, "#7FFFD4",settings["culture_color_transparency_hover"])
+        //colorSquare(x,y, "#7FFFD4",settings["culture_color_transparency_hover"])
+        colorSquare(x,y, culture_colors[culture_id],settings["culture_color_transparency_hover"])
       }
       else
       {

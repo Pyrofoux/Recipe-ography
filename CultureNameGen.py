@@ -265,17 +265,32 @@ def getExistingRecipesNames(cuisine):
     return recipeNames
 
 
+def generateNameForEachCuisine():
+
+    names = []
+
+    for cuisine in list(Cuisine):
+        name = capitalize(cityNameFromCuisine(cuisine))
+        names.append(name)
+
+    random.shuffle(names) #randomize order
+    return names
+
+
+
 # This line says that everything after will only be executed if you run the script directly,
 # and will not be run if you load the script from another module, like the Assembler :)
 if __name__ == "__main__":
     #Generative examples
 
-    #City
-    print(capitalize(cityNameFromCuisine(Cuisine.Moroccan)))
-    print(capitalize(cityNameFromCuisine(Cuisine.English)))
-    print(capitalize(cityNameFromCuisine(Cuisine.French)))
-    print(capitalize(cityNameFromCuisine(Cuisine.German)))
-    print(capitalize(cityNameFromCuisine(Cuisine.Japanese)))
+    # #City
+    # print(capitalize(cityNameFromCuisine(Cuisine.Moroccan)))
+    # print(capitalize(cityNameFromCuisine(Cuisine.English)))
+    # print(capitalize(cityNameFromCuisine(Cuisine.French)))
+    # print(capitalize(cityNameFromCuisine(Cuisine.German)))
+    # print(capitalize(cityNameFromCuisine(Cuisine.Japanese)))
+    #
+    # #Recipe name
+    # print(recipeNameFromCuisine(Cuisine.French, syllable_max_length = 1))
 
-    #Recipe name
-    print(recipeNameFromCuisine(Cuisine.French, syllable_max_length = 1))
+    generateNameForEachCuisine()
