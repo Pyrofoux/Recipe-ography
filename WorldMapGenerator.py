@@ -185,8 +185,8 @@ def culture_spread_rule(cult_neighbour_count, cultureDict, currValue, terrainTyp
     if (choice<(0.1*max_neighbours)):
         return return_culture_id
     #Culture death chance
-    elif(choice>0.8):
-        return 0
+    #elif(choice>0.8):
+    #    return 0
     else:
         return currValue
 
@@ -314,6 +314,18 @@ def get_most_commom_tiletype_from_neighbours(counter):
          maxvalue = counter[key]
          return_id = key
     return return_id
+
+#Remove all culture on water tiles
+def tidy_culture_on_water(mapMatrix, cultureMatrix):
+    updatedCultureMap = np.zeros((MAPSIZE, MAPSIZE), dtype=int)
+
+    for i in range(MAPSIZE):
+        for j in range(MAPSIZE):
+            if (mapMatrix[i][j]==Terrain.WATER.value):
+                updatedCultureMap[i][j] = 0
+            else:
+                updatedCultureMap[i][j] = cultureMatrix[i][j]
+    return updatedCultureMap
 
 #Print world matrix to console
 #Mainly for debugging
@@ -572,7 +584,7 @@ def generate_terrain_matrix(startMapType, iterationCount):
 
 def generate_culture_matrix(terrainMap, cultureList, iterationCount):
     culture_start_positions = gen_culture_start_map(terrainMap, cultureList)
-    return culture_spread_iterations(terrainMap,culture_start_positions, cultureList, iterationCount)
+    return tidy_culture_on_water(terrainMap, culture_spread_iterations(terrainMap,culture_start_positions, cultureList, iterationCount)[-1])
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
@@ -601,10 +613,10 @@ if __name__ == "__main__":
     save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestOutput.gif'))
 
     test_cultures = []
-    test_cultures.append(Culture(1, "The Shire", [250,10,10]), False)
-    test_cultures.append(Culture(2, "Mordor", [10,46,250]), False)
-    test_cultures.append(Culture(3, "Rohan", [255,234,0]), False)
-    test_cultures.append(Culture(4, "The Elves", [255,36,237]), True)
+    test_cultures.append(Culture(1, "The Shire", [250,10,10], False))
+    test_cultures.append(Culture(2, "Mordor", [10,46,250], False))
+    test_cultures.append(Culture(3, "Rohan", [255,234,0], False))
+    test_cultures.append(Culture(4, "The Elves", [255,36,237], True))
 
     #test_culture_map = gen_culture_start_map(final_map, test_cultures)
 
@@ -616,14 +628,14 @@ if __name__ == "__main__":
 
     #print(test_culture_map.shape[0])
 
-    thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
+    #thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
 
-    final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
+    #final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
 
     #display_world_int(final_culture_map)
 
-    Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
-    save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpread.gif'))
+    #Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
+    #save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpreadSeaTest.gif'))
 
     #TESTING FULLY RANDOM MAP GENERATION
 

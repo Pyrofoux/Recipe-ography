@@ -43,9 +43,8 @@ for name in culture_names:
 
 output["culture_names"] = culture_names
 
-culture_maps = generate_culture_matrix(terrain_map, cultureList, settings["culturespread_iterationCount"])
+culture_map =  generate_culture_matrix(terrain_map, cultureList, settings["culturespread_iterationCount"])
 
-culture_map = culture_maps[-1]
 output["culture_map"] = culture_map.tolist()
 
 json_formatted = json.dumps(output)
