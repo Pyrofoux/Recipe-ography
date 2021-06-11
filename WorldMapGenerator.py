@@ -46,19 +46,9 @@ class Culture:
 #Define Cellular Automata Rules for every terrain type
 
 def water_rules(neighbour_count):
-
-<<<<<<< Updated upstream
-def grassland_rules(neighbour_count):
-    #If more than 5 neighbours are grassland, return grassland
-    if(neighbour_count[Terrain.WATER.value]>=6):
-        return Terrain.WATER.value
-    #If there are 7 or more grasslands about, have 20% chance of desert, 20% of mountains
-    elif(neighbour_count[Terrain.GRASSLAND.value]>=7):
-=======
     return_tiletype = Terrain.WATER.value
     #If four or less neighbours are water, turn into grassland with X chance
     if(neighbour_count[Terrain.WATER.value]<=4):
->>>>>>> Stashed changes
         choice = random.uniform(0, 1)
         if (choice<0.5):    
             return_tiletype = Terrain.GRASSLAND.value
@@ -243,15 +233,8 @@ def apply_culture_spread_rules(mapMatrix, inputCultureMatrix, cultureList):
 
     for i in range(MAPSIZE):
         for j in range(MAPSIZE):
-<<<<<<< Updated upstream
-            #Check were not on a water tile or an already set culture
-            if ((not mapMatrix[i][j] == Terrain.WATER.value)):
-                culture_neighbour_count = retrieve_neighbours(i,j,inputCultureMatrix)
-                updatedCultureMap[i][j] = culture_spread_rule(culture_neighbour_count, cultureDict, inputCultureMatrix[i][j])
-=======
             culture_neighbour_count = retrieve_neighbours(i,j,inputCultureMatrix)
             updatedCultureMap[i][j] = culture_spread_rule(culture_neighbour_count, cultureDict, inputCultureMatrix[i][j], mapMatrix[i][j])
->>>>>>> Stashed changes
     return updatedCultureMap
 
 def culture_spread_iterations(mapMatrix, cultureMatrix, cultureList, iterationCount):
@@ -600,54 +583,28 @@ def generate_culture_matrix(terrainMap, cultureList, iterationCount):
 if __name__ == "__main__":
 
     #TESTING
-
-
     image_save_path = 'C:/Users/Ollie/Documents/ACADEMIA/IGGI PHD/Year 1 Modules/Game Dev 2/Food Maps Project/Output Images/'
 
-<<<<<<< Updated upstream
-    #TESTING CENTRAL ISLAND GENERATION
-    twenty_gen_map = generate_terrain_matrix(1, 20)
-=======
 
-#test_start = gen_perlin_noise_map()
-#Image.fromarray(get_world_rgb_from_map_matrix(test_start)).show()
-#display_world_int(test_start)
-#banded_start = terrain_band_map(test_start)
-#Image.fromarray(get_world_rgb_from_map_matrix(banded_start)).show()
+    #test_start = gen_perlin_noise_map()
+    #Image.fromarray(get_world_rgb_from_map_matrix(test_start)).show()
+    #display_world_int(test_start)
+    #banded_start = terrain_band_map(test_start)
+    #Image.fromarray(get_world_rgb_from_map_matrix(banded_start)).show()
 
-#TESTING ISLAND GENERATION
-twenty_gen_map = generate_terrain_matrix(5, 20)
->>>>>>> Stashed changes
+    #TESTING ISLAND GENERATION
+    twenty_gen_map = generate_terrain_matrix(5, 20)
 
     final_map = twenty_gen_map[len(twenty_gen_map)-1]
 
-<<<<<<< Updated upstream
     gen_img_from_map_matrix(final_map).show()
-    save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestCentralOutput.gif'))
+    save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestOutput.gif'))
 
     test_cultures = []
-    test_cultures.append(Culture(1, "The Shire", [250,10,10]))
-    test_cultures.append(Culture(2, "Mordor", [10,46,250]))
-    test_cultures.append(Culture(3, "Rohan", [255,234,0]))
-    test_cultures.append(Culture(4, "The Elves", [255,36,237]))
-=======
-gen_img_from_map_matrix(final_map).show()
-save_terrain_history_gif(twenty_gen_map, (image_save_path+'TestFuzzyPerlinOutput.gif'))
-
-#display_world_int(final_map)
-
-test_cultures = []
-test_cultures.append(Culture(1, "The Shire", [250,10,10], True))
-test_cultures.append(Culture(2, "Mordor", [10,46,250], True))
-test_cultures.append(Culture(3, "Rohan", [255,234,0], True))
-test_cultures.append(Culture(4, "The Elves", [255,36,237], True))
-test_cultures.append(Culture(5, "The Dwarfs", [148, 107, 70], False))
-test_cultures.append(Culture(6, "The Bobs", [24, 48, 48], False))
-test_cultures.append(Culture(7, "Daveland", [40, 24, 48], False))
-test_cultures.append(Culture(8, "Foo", [179, 66, 152], False))
-test_cultures.append(Culture(9, "Bar", [145, 77, 92], False))
-test_cultures.append(Culture(10, "The Dudes", [207, 143, 120], False))
->>>>>>> Stashed changes
+    test_cultures.append(Culture(1, "The Shire", [250,10,10]), False)
+    test_cultures.append(Culture(2, "Mordor", [10,46,250]), False)
+    test_cultures.append(Culture(3, "Rohan", [255,234,0]), False)
+    test_cultures.append(Culture(4, "The Elves", [255,36,237]), True)
 
     #test_culture_map = gen_culture_start_map(final_map, test_cultures)
 
@@ -659,24 +616,11 @@ test_cultures.append(Culture(10, "The Dudes", [207, 143, 120], False))
 
     #print(test_culture_map.shape[0])
 
-<<<<<<< Updated upstream
     thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
 
     final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
 
     #display_world_int(final_culture_map)
-=======
-#------------------------------------------
-#thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
-
-#final_culture_map = thirty_culture_spreads[len(thirty_culture_spreads)-1]
-
-#Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
-#save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpreadPatchy.gif'))
-#print("Generation Completed")
-#------------------------------------------------
-
->>>>>>> Stashed changes
 
     Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
     save_culture_history_gif(final_map,thirty_culture_spreads,test_cultures, (image_save_path+'CultureSpread.gif'))
