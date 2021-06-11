@@ -1,4 +1,23 @@
 #cvs
 {
-	border:solid 2px black;
+	border:solid 4px black;
+	float:left;
+}
+
+#sidebar
+{
+	background-color:orange;
+	width: 360px;
+	height:590px;
+	border:solid 4px black;
+	float:left;
+	font-family:Calibri, Lucida Console;
+	padding-left:20px;
+	padding-right:20px;
+	padding-top:10px;
+}
+
+#country_name
+{
+	text-align:center;
 }
