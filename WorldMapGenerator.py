@@ -344,6 +344,12 @@ def tidy_culture_on_water(mapMatrix, cultureMatrix):
                 updatedCultureMap[i][j] = cultureMatrix[i][j]
     return updatedCultureMap
 
+def gen_tiletype_count_dictionary():
+    tileDict = {}
+    for type in Terrain:
+        tileDict[type.value] = 0
+    return tileDict
+
 #Print world matrix to console
 #Mainly for debugging
 def display_world(matrix):
@@ -605,6 +611,33 @@ def generate_culture_matrix(terrainMap, cultureList, iterationCount):
     return (tidy_culture_on_water(terrainMap, fullHistory[-1]),fullHistory)
 
 
+#Get tile ratios from culture
+def get_tile_ratios_for_cultures(mapMatrix, cultureMatrix, cultureList):
+    #Array of tile dictionaries for each culture
+    output = {}
+    for culture in cultureList:
+        culture_tile_count = gen_tiletype_count_dictionary()
+        for i in range(MAPSIZE):
+            for j in range(MAPSIZE):
+                if (cultureMatrix[i][j]==culture.culture_id ):
+                    culture_tile_count[mapMatrix[i][j]]+=1
+        #print("Pre normalised:")
+        #print(culture_tile_count)
+        #Get sum total, for ensuring values add up to 100
+        sumValues = 0
+        for key in culture_tile_count:
+            sumValues += culture_tile_count[key]  
+        #Adjust so values add up to 100
+        for key in culture_tile_count:
+            culture_tile_count[key] = (culture_tile_count[key]/sumValues)*100
+        #print("Post normalised with sum max " + repr(sumValues) + ":")
+        #print(culture_tile_count)
+        #Add to output
+        output[culture.culture_id] = culture_tile_count
+    return output
+        
+                
+
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
 
@@ -635,13 +668,13 @@ if __name__ == "__main__":
     test_cultures.append(Culture(3, "Rohan", [255,234,0], False))
     test_cultures.append(Culture(4, "The Elves", [255,36,237], True))
 
-    test_culture_map = gen_culture_start_map(final_map, test_cultures)
+    #test_culture_map = gen_culture_start_map(final_map, test_cultures)
 
     #display_world_int(test_culture_map)
 
-    culture_rgb_map = get_culture_and_terrain_rgb(final_map, test_culture_map, test_cultures)
+    #culture_rgb_map = get_culture_and_terrain_rgb(final_map, test_culture_map, test_cultures)
 
-    Image.fromarray((culture_rgb_map)).show()
+    #Image.fromarray((culture_rgb_map)).show()
 
     #print(test_culture_map.shape[0])
 
@@ -653,6 +686,8 @@ if __name__ == "__main__":
 
     Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
     save_culture_history_gif(final_map,thirty_culture_spreads[1],test_cultures, (image_save_path+'CultureSpreadDemo.gif'))
+
+    print(get_tile_ratios_for_cultures(final_map,final_culture_map,test_cultures))
 
     #TESTING FULLY RANDOM MAP GENERATION
 

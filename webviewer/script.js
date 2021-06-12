@@ -15,7 +15,7 @@ let tyle2color =
   "#099c06", //GRASSLAND
   "#ffe563",  //DESERT
   "#084d4d",  //JUNGLE
-  "brown",  //MOUNTAIN
+  "#734f30",  //MOUNTAIN
   "#d4faf8",  //SNOW
 ];
 
