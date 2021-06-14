@@ -1,7 +1,16 @@
 import random
 import numpy as np
 
-tileTypes = ["water", "jungle", "snow", "desert", "mountain", "grassland"] #for recipe title generator
+
+    # WATER = 1
+    # GRASSLAND = 2
+    # DESERT = 3
+    # JUNGLE = 4
+    # MOUNTAIN = 5
+    # SNOW = 6
+
+
+tileTypes = ["water", "grassland", "desert", "jungle", "mountain", "snow"] #for recipe title generator
 
 recipeCategories = ["soup", "stew", "curry", "bake", "smoothie"] #for recipe title generator
 
@@ -9,27 +18,7 @@ functionNumbers = [1, 2, 3]
 
 ingredientAmounts = ["whole", "half", "quarter"]
 
-tileTypeRatios = {"water": 20, "jungle": 10, "snow": 5, "desert": 25, "mountain": 10, "grassland": 30}
 
-plantDictionary = {'daffroom': ['jungle', ['bud', 'root', 'stem']],
-'letroom': ['desert', ['leaf']],
-'dandmber': ['jungle', ['bud', 'root']],
-'spiragus': ['mountain', ['bud', 'stem']],
-'banato': ['snow', ['bud', 'root']],
-'dandtle': ['desert', ['leaf', 'stem']],
-'cucumt': ['grassland', ['bud', 'leaf', 'stem']],
-'cucuberry': ['grassland', ['bud']],
-'daffana': ['desert', ['bud', 'leaf', 'root']],
-'aspagette': ['jungle', ['bud', 'stem']],
-'member': ['mountain', ['bud', 'leaf', 'stem']],
-'dandana': ['water', ['bud', 'leaf']],
-'garnach': ['desert', ['root']],
-'garmary': ['grassland', ['leaf', 'root', 'stem']],
-'netato': ['water', ['bud', 'leaf', 'stem']],
-'spiroom': ['desert', ['root', 'stem']],
-'spint': ['water', ['bud', 'leaf']],
-'dafflon': ['grassland', ['leaf', 'root']],
-'meberry': ['desert', ['bud', 'stem']]}
 
 #plantDictionary = {'letana': ['water', ['leaf', 'root', 'stem']],
 #'minach': ['snow', ['bud', 'stem']], 'aspaelion': ['desert', ['bud', 'leaf']],
@@ -84,7 +73,7 @@ def soupRecipe(plantDictionary, ingredientAmounts, tileRatios):
             plantsToUse.append(plant)
     print("plantsToUse = ",plantsToUse)
 
-    ingredients = getIngredients(plantsToUse)
+    ingredients = getIngredients(plantsToUse, plantDictionary)
     print("ingredients = ",ingredients)
 
     ingredientsList_a = getStepsSoup(ingredients)
@@ -155,7 +144,7 @@ def smoothieRecipe(plantDictionary, ingredientAmounts, tileRatios):
             plantsToUse.append(plant)
     #print(plantsToUse)
 
-    ingredients = getIngredients(plantsToUse)
+    ingredients = getIngredients(plantsToUse, plantDictionary)
     ingredientsList_a = getStepsSmoothie(ingredients)
     ingredientsList_b = ingredientsList_a[1]
     #print(ingredientsList_b)
@@ -226,7 +215,7 @@ def stewRecipe(plantDictionary, ingredientAmounts, tileRatios):
             plantsToUse.append(plant)
     #print(plantsToUse)
 
-    ingredients = getIngredients(plantsToUse)
+    ingredients = getIngredients(plantsToUse, plantDictionary)
     ingredientsList_a = getStepsStew(ingredients)
     ingredientsList_b = ingredientsList_a[1]
     #print(ingredientsList_b)
@@ -273,15 +262,12 @@ def getStepsStew(ingredients):
 
 
 
-
-
-
 #helper methods
 
 #add lists and randomly choose from them for sections of recipe templates
 
 #helperMethod to get ingredients for recipe
-def getIngredients(plants):
+def getIngredients(plants,plantDictionary):
 
     ingredients =[[],[],[]]
 
@@ -299,11 +285,15 @@ def getIngredients(plants):
 
 #helperMethod to get prep time for recipe
 def getPrepTime():
-    return "20 minutes"
+
+    possible_times = ["10","15","20","25","30"]
+
+    return random.choice(possible_times)+" minutes"
 
 #helperMethod to get cook time for rexcipe
 def getCookTime():
-    return "30 minutes"
+    possible_times = ["< 15","20 - 30","60+"]
+    return random.choice(possible_times)+" minutes"
 
 
 
@@ -319,7 +309,7 @@ def getCookTime():
 
 
 #call this as Main Method, picks random recipe function to run
-def pickRandomRecipe(functionNumbers, tileTypeRatios):
+def pickRandomRecipe(plantDictionary, functionNumbers, tileTypeRatios):
     switch = {
         1: soupRecipe(plantDictionary, ingredientAmounts, tileTypeRatios),
         2: smoothieRecipe(plantDictionary, ingredientAmounts, tileTypeRatios),
@@ -331,6 +321,30 @@ def pickRandomRecipe(functionNumbers, tileTypeRatios):
 
 
 if __name__ == "__main__":
+
+    tileTypeRatios = {"water": 20, "jungle": 10, "snow": 5, "desert": 25, "mountain": 10, "grassland": 30}
+
+    plantDictionary = {'daffroom': ['jungle', ['bud', 'root', 'stem']],
+    'letroom': ['desert', ['leaf']],
+    'dandmber': ['jungle', ['bud', 'root']],
+    'spiragus': ['mountain', ['bud', 'stem']],
+    'banato': ['snow', ['bud', 'root']],
+    'dandtle': ['desert', ['leaf', 'stem']],
+    'cucumt': ['grassland', ['bud', 'leaf', 'stem']],
+    'cucuberry': ['grassland', ['bud']],
+    'daffana': ['desert', ['bud', 'leaf', 'root']],
+    'aspagette': ['jungle', ['bud', 'stem']],
+    'member': ['mountain', ['bud', 'leaf', 'stem']],
+    'dandana': ['water', ['bud', 'leaf']],
+    'garnach': ['desert', ['root']],
+    'garmary': ['grassland', ['leaf', 'root', 'stem']],
+    'netato': ['water', ['bud', 'leaf', 'stem']],
+    'spiroom': ['desert', ['root', 'stem']],
+    'spint': ['water', ['bud', 'leaf']],
+    'dafflon': ['grassland', ['leaf', 'root']],
+    'meberry': ['desert', ['bud', 'stem']]}
+
+
     pickRandomRecipe(functionNumbers, tileTypeRatios)
 
 #    randomly pick a nunber functionNumbers list

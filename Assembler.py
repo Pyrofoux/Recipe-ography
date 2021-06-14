@@ -3,6 +3,7 @@ import json
 from WorldMapGenerator import *
 from CultureNameGen import *
 from RecipeGenerator import *
+from wordMasher import *
 
 
 # print(plantDictionary)
@@ -11,11 +12,11 @@ from RecipeGenerator import *
 # They could be stored in a settings.ini file instead
 
 settings = {}
-settings["mapgen_iterationCount"]        = 20 #20
+settings["mapgen_iterationCount"]        = 20
 settings["mapgen_startMapType"]          = 5
-settings["culturespread_iterationCount"] = 100 #100
+settings["culturespread_iterationCount"] = 100
 settings["number_of_cultures"]           = 5 #Max value is about 12
-
+settings["max_plants"]                   = 15 #Min = 3*5 = 15
 
 # Starting Assembling
 
@@ -51,8 +52,8 @@ output["culture_map"] = culture_map.tolist()
 
 # Generates plants library
 
-# TODO
-
+plantDictionary = cleanUpDictionary(create_plant_library(original_plants, tileTypes, edible_parts), original_plants)
+output["plantDictionary"] = plantDictionary
 # Generates recipes for each culture, based on soil tile distribution
 
 tile_ratios = get_tile_ratios_for_cultures(terrain_map, culture_map, cultureList)
@@ -66,7 +67,7 @@ for culture_name in culture_names:
     tile_ratio = tile_ratios[i]
 
     #print(tile_ratio)
-    generated_recipe = pickRandomRecipe(functionNumbers, tile_ratio)
+    generated_recipe = pickRandomRecipe(plantDictionary, functionNumbers, tile_ratio)
     generated_recipes.append(generated_recipe)
 
 output["recipes"] = generated_recipes

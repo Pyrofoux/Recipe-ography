@@ -75,7 +75,7 @@ function drawMap()
 
     if(culture_id > 0)
     {
-      if(ui.culture_hover == culture_id)
+      if(ui.culture_hover == culture_id || ui.culture_click == culture_id)
       {
         //colorSquare(x,y, "#7FFFD4",settings["culture_color_transparency_hover"])
         colorSquare(x,y, culture_colors[culture_id],settings["culture_color_transparency_hover"])
@@ -152,6 +152,10 @@ function mapHover(e)
   {
     displayCountryInfo(ui.culture_hover-1);
   }
+  else if(ui.culture_click!= 0)
+  {
+    displayCountryInfo(ui.culture_click-1);
+  }
   else
   {
     clearCountryInfo();
@@ -175,7 +179,7 @@ function displayCountryInfo(cultureId)
 
   //Ingredients
 
-  get("ingredients_list").innerHTML = recipe.ingredients.map(step => "<li>"+step+"</li>").join("");
+  get("ingredients_list").innerHTML = recipe.ingredients.map(ingredient => "<li>"+add_tooltip(ingredient)+"</li>").join("");
 
   //Steps
   recipe_steps = recipe["recipe steps"];
@@ -194,6 +198,36 @@ function clearCountryInfo()
   get("sidebar_content").style.display = "none";
 }
 
+function add_tooltip(sentence)
+{
+  words = sentence.split(" ");
+  for(let i=0; i < sentence.length; i++)
+  {
+    entry = world_data.plantDictionary[words[i]];
+    if(entry)
+    {
+      biome = entry[0];
+      edibles = entry[1];
+      parents = entry[2];
+      words[i] = gen_tooltip(words[i], biome, edibles, parents);
+    }
+  }
+
+  return words.join(" ");
+}
+
+function gen_tooltip(name, biome, edibles, parents)
+{
+  firstHalf = splitHalf(parents[0])[0];
+  secondHalf = splitHalf(parents[1])[1];
+  return `<span class="tooltip">${name}<span class="tooltiptext">From <i>${firstHalf}-</i> (${parents[0]}) and <i>-${secondHalf}</i> (${parents[1]}). Grows in the ${biome}.</span></span>`
+}
+
+function splitHalf(word)
+{
+  l = word.length;
+  return [word.substr(0,l/2), word.substr(l/2)];
+}
 
 function capitalize(string)
 {

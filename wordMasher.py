@@ -1,20 +1,19 @@
 import random
 import numpy as np
+from CultureNameGen import *
 
 
 
-original_plants = ["dandelion", "spinach", "banana", "daffodil", "courgette", "garlic",
-"tomato", "strawberry", "melon", "cucumber", "mushroom", "rosemary", "mint", "lettuce", "asparagus", "nettle"]
+original_plants = ["dandelion", "spinach", "banana", "parsley", "courgette", "garlic","carrot","ananas","orange","pumpkin","radish"
+"tomato", "strawberry", "melon", "cucumber", "mushroom", "rosemary", "mint", "lettuce", "asparagus", "nettle","potato","broccoli", "apple"]
 
 edible_parts =["leaf", "stem", "bud", "root"]
 
+
+# same order as the MapGeneration and the Web Viewer
 tileTypes = ["water", "jungle", "snow", "desert", "mountain", "grassland"]
 
-#plantDictionary = {'spimber': ['water',['leaf', 'stem']],
- #                  'daffgette': ['snow',['leaf', 'root', 'stem']],
-  #                 'daffmary': ['water',['bud', 'stem']],
-   #                'strawmber': ['grassland',['bud', 'leaf', 'stem']],
-    #                 None: ['grassland',['bud', 'leaf', 'stem']]}
+plantDictionary = {}
 
 
 
@@ -28,22 +27,23 @@ def wordMash(originalPlants):
   if(random_word_1 != random_word_2):
     mashedWord = first_half + second_half
     print(mashedWord)
-    return mashedWord
+    return (mashedWord,random_word_1, random_word_2)
   else:
       print("chose same word twice")
       wordMash(originalPlants)
 
 #helper function to retrieve the first half of a word
 def getFirstHalf(word):
-   firstHalf = word[:len(word)/2]
-   #print(firstHalf)
-   return firstHalf
+
+    syllables = syllablize(word)
+    firstHalf = syllables[:int(len(syllables)/2)]
+    return "".join(firstHalf)
 
 #helper function to retrieve the second half of a word
 def getSecondHalf(word):
-    secondHalf = word[len(word)/2:]
-    #print(secondHalf)
-    return secondHalf
+    syllables = syllablize(word)
+    secondHalf = syllables[int(len(syllables)/2):]
+    return "".join(secondHalf)
 
 #def addTileTypePrefix(str, list):
     #tileTypes = ["water", "jungle", "snow", "desert", "mountain", "grassland"]
@@ -58,29 +58,60 @@ def getSecondHalf(word):
 
 #function to create a dictionary, with plant names as the keys, and tile type/edible plant parts
 #associated with the key as the value
-def create_plant_library(originalplants, tiletypes, edibles):
+def create_plant_library(originalplants, tiletypes, edibles, max_plants = 15):
     plant_dictionary = {}
-    key_list = make_keys_list(originalplants)
-    for plant in key_list:
-        plant_dictionary.update({plant : plant_attributes_as_list(tileTypes, edibles)})
-    #print("plant dictionary: ", plant_dictionary)
+    mashup_list = make_keys_list(originalplants)
+
+    #each biomes should have at least two plants growing there
+    #or we will have issues when accessing some recipies ingredients
+    forced_biomes = ["jungle", "snow", "desert", "mountain", "grassland"] * 3
+
+    i = 0
+    for parent_words in mashup_list:
+
+        if i > max_plants:
+            break
+
+        if parent_words != None: #Why could it be none? That's a mystery!
+            mashed_plant_name = parent_words[0]
+            parent_A = parent_words[1]
+            parent_B = parent_words[2]
+
+            #/!\
+            #This is where the edibles and tile types are attributed
+
+            forced_biome = None
+            if i < len(forced_biomes):
+                forced_biome = forced_biomes[i]
+
+            attributes_list = plant_attributes_as_list(tileTypes, edibles, forced_biome = forced_biome)
+            attributes_list.append([parent_A, parent_B])
+
+            plant_dictionary.update({mashed_plant_name : attributes_list})
+
+        i+=1
     return plant_dictionary
 
 #helper function to create a list of plant names to use as keys for the dictionary
 def make_keys_list(originalplants):
     keysList = []
-    for x in range(20):
+    for x in range(len(originalplants)):
         keysList.append(wordMash(originalplants))
     return keysList
 
 #helper function to construct a list of edible parts to use as part of the value for a key in
 #the plant dictionary
-def plant_attributes_as_list(list1, list2):
-    edible_parts = [random.choice(list2), random.choice(list2), random.choice(list2)]
+def plant_attributes_as_list(tileTypesList, ediblePartsList, forced_biome = None):
+    edible_parts = [random.choice(ediblePartsList), random.choice(ediblePartsList), random.choice(ediblePartsList)]
     x = np.array(edible_parts)
     distinctEdibleParts = np.unique(x)
     converted = distinctEdibleParts.tolist()
-    attributes = [random.choice(list1), converted]
+
+    tile_type = random.choice(tileTypesList)
+    if forced_biome != None:
+        tile_type = forced_biome
+
+    attributes = [tile_type, converted]
     #print("plant attributes are: ", attributes)
     return attributes
 
