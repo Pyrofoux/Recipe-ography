@@ -3,16 +3,16 @@ import numpy as np
 
 
 
-original_plants = ["dandelion", "spinach", "banana", "daffodil", "courgette", "garlic", 
+original_plants = ["dandelion", "spinach", "banana", "daffodil", "courgette", "garlic",
 "tomato", "strawberry", "melon", "cucumber", "mushroom", "rosemary", "mint", "lettuce", "asparagus", "nettle"]
 
 edible_parts =["leaf", "stem", "bud", "root"]
 
 tileTypes = ["water", "jungle", "snow", "desert", "mountain", "grassland"]
 
-#plantDictionary = {'spimber': ['water',['leaf', 'stem']], 
- #                  'daffgette': ['snow',['leaf', 'root', 'stem']], 
-  #                 'daffmary': ['water',['bud', 'stem']], 
+#plantDictionary = {'spimber': ['water',['leaf', 'stem']],
+ #                  'daffgette': ['snow',['leaf', 'root', 'stem']],
+  #                 'daffmary': ['water',['bud', 'stem']],
    #                'strawmber': ['grassland',['bud', 'leaf', 'stem']],
     #                 None: ['grassland',['bud', 'leaf', 'stem']]}
 
@@ -56,7 +56,7 @@ def getSecondHalf(word):
 
 #data structure for recipes to retrieve data (dictionary)
 
-#function to create a dictionary, with plant names as the keys, and tile type/edible plant parts 
+#function to create a dictionary, with plant names as the keys, and tile type/edible plant parts
 #associated with the key as the value
 def create_plant_library(originalplants, tiletypes, edibles):
     plant_dictionary = {}
@@ -64,7 +64,7 @@ def create_plant_library(originalplants, tiletypes, edibles):
     for plant in key_list:
         plant_dictionary.update({plant : plant_attributes_as_list(tileTypes, edibles)})
     #print("plant dictionary: ", plant_dictionary)
-    return plant_dictionary 
+    return plant_dictionary
 
 #helper function to create a list of plant names to use as keys for the dictionary
 def make_keys_list(originalplants):
@@ -73,7 +73,7 @@ def make_keys_list(originalplants):
         keysList.append(wordMash(originalplants))
     return keysList
 
-#helper function to construct a list of edible parts to use as part of the value for a key in 
+#helper function to construct a list of edible parts to use as part of the value for a key in
 #the plant dictionary
 def plant_attributes_as_list(list1, list2):
     edible_parts = [random.choice(list2), random.choice(list2), random.choice(list2)]
@@ -99,13 +99,11 @@ def cleanUpDictionary(plantDictionary, orignialPlants):
     print("cleaned keys:", plantDictionary)
     return plantDictionary
 
-#Main method to run, will produce the plant dictinary
-cleanUpDictionary(create_plant_library(original_plants, tileTypes, edible_parts), original_plants)
 
 
+# This line says that everything after will only be executed if you run the script directly,
+# and will not be run if you load the script from another module, like the Assembler :)
+if __name__ == "__main__":
 
-
-
-
-  
-
+    #Main method to run, will produce the plant dictinary
+    cleanUpDictionary(create_plant_library(original_plants, tileTypes, edible_parts), original_plants)
