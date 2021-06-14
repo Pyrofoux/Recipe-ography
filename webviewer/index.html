@@ -8,10 +8,24 @@
   </head>
   <body>
 
-	<canvas id="cvs"></canvas>
-  <div id="sidebar" style="dislayinline-block">
-    <h1 id="country_name"></h1>
-  </div>
+    <h1 id="title_page">*:. The World's Most Iconic Dishes .:*</h1>
+  <span id="wrapper">
+  	<canvas id="cvs"></canvas>
+    <div id="sidebar">
+      <span id="sidebar_content">
+        <h1 id="recipe_title"><span id="country_name"></span>'s <span id="biome_name"></span> <span id="dish_type"></span></h1>
+
+        <b>Preparation Time: </b> <span id="prep_time"></span> <br/>
+        <b>Cooking Time: </b> <span id="cook_time"></span> <br/>
+        <br/>
+        <b>Ingredients: </b><br/>
+        <ul id="ingredients_list"></ul>
+        <br/>
+        <b>Instructions: </b><br/>
+        <ol id="steps_list"></ol>
+      </span>
+    </div>
+  </span>
 
 
 	<script type="text/javascript" src="./helper.js"></script>

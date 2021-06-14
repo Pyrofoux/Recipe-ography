@@ -58,6 +58,7 @@ function init()
   cvs.addEventListener('mousemove', mapHover);
 
   drawMap();
+  clearCountryInfo();
 
 }
 
@@ -149,15 +150,54 @@ function mapHover(e)
 
   if(ui.culture_hover!= 0)
   {
-    get("country_name").innerHTML = world_data["culture_names"][ui.culture_hover-1]
+    displayCountryInfo(ui.culture_hover-1);
   }
   else
   {
-    get("country_name").innerHTML = "";
+    clearCountryInfo();
   }
 
 
 }
 
+
+function displayCountryInfo(cultureId)
+{
+  get("sidebar_content").style.display = "inline-block";
+
+  recipe = world_data.recipes[cultureId];
+
+  // Recipe Title
+  get("country_name").innerHTML = capitalize(world_data["culture_names"][cultureId]);
+  get("biome_name").innerHTML = capitalize(recipe.commonTileTypes[0]);
+  get("dish_type").innerHTML = capitalize(recipe["recipe category"]);
+
+
+  //Ingredients
+
+  get("ingredients_list").innerHTML = recipe.ingredients.map(step => "<li>"+step+"</li>").join("");
+
+  //Steps
+  recipe_steps = recipe["recipe steps"];
+  get("steps_list").innerHTML = recipe_steps.map(step => "<li>"+step+"</li>").join("");
+
+  //Other info
+  get("prep_time").innerHTML = recipe["prep time"];
+  get("cook_time").innerHTML = recipe["cook time"];
+
+
+
+}
+
+function clearCountryInfo()
+{
+  get("sidebar_content").style.display = "none";
+}
+
+
+function capitalize(string)
+{
+  return string[0].toUpperCase()+string.substr(1);
+}
 
 init();

@@ -54,7 +54,12 @@ plantDictionary = {'daffroom': ['jungle', ['bud', 'root', 'stem']],
 
 
 
+def getTileName(tileId):
 
+    if type(tileId) is int:
+        return tileTypes[tileId-1] #Converts name to id, "water" -> 1,  "jungle" -> 2
+    elif type(tileId) is str:
+        return tileId
 
 #produces soup recipe as a dictionary
 def soupRecipe(plantDictionary, ingredientAmounts, tileRatios):
@@ -62,21 +67,26 @@ def soupRecipe(plantDictionary, ingredientAmounts, tileRatios):
     #find two most predominant tile types
     sortedValues = sorted(tileRatios, key=tileRatios.get, reverse=True)
     #print(sortedValues)
-    mostCommonTileType = sortedValues[0]
+    mostCommonTileType = getTileName(sortedValues[0])
     #print(mostCommonTileType)
-    secondMostCommonTileType = sortedValues[1]
+    secondMostCommonTileType = getTileName(sortedValues[1])
     #print(secondMostCommonTileType)
 
     #find plants from dictionary with those tile types
     plantsToUse = []
     for plant in plantDictionary:
         value = plantDictionary.get(plant)
-        tile = value[0]
-        if(tile == mostCommonTileType or tile == secondMostCommonTileType):
+        tileName = value[0]
+
+
+        print(tileName, mostCommonTileType, secondMostCommonTileType, value)
+        if(tileName == mostCommonTileType or tileName == secondMostCommonTileType):
             plantsToUse.append(plant)
-    #print(plantsToUse)
+    print("plantsToUse = ",plantsToUse)
 
     ingredients = getIngredients(plantsToUse)
+    print("ingredients = ",ingredients)
+
     ingredientsList_a = getStepsSoup(ingredients)
     ingredientsList_b = ingredientsList_a[1]
     #print(ingredientsList_b)
@@ -88,7 +98,7 @@ def soupRecipe(plantDictionary, ingredientAmounts, tileRatios):
     "recipe category": "Soup",
     "recipe steps": steps_b,
     "prep time": getPrepTime(),
-    "cook time": getCookTime()}
+    "cook time": getCookTime(), "commonTileTypes":[mostCommonTileType, secondMostCommonTileType]}
 
     #print("final recipe:", recipe)
 
@@ -96,6 +106,8 @@ def soupRecipe(plantDictionary, ingredientAmounts, tileRatios):
 
 #helperMethod to create steps to make soup from ingredients
 def getStepsSoup(ingredients):
+
+    print(ingredients)
 
     ingredient1 = ingredients[0][0]
     ingredient2 = ingredients[0][1]
@@ -129,9 +141,9 @@ def smoothieRecipe(plantDictionary, ingredientAmounts, tileRatios):
     #find two most predominant tile types
     sortedValues = sorted(tileRatios, key=tileRatios.get, reverse=True)
     #print(sortedValues)
-    mostCommonTileType = sortedValues[0]
+    mostCommonTileType = getTileName(sortedValues[0])
     #print(mostCommonTileType)
-    secondMostCommonTileType = sortedValues[1]
+    secondMostCommonTileType = getTileName(sortedValues[1])
     #print(secondMostCommonTileType)
 
     #find plants from dictionary with those tile types
@@ -155,7 +167,7 @@ def smoothieRecipe(plantDictionary, ingredientAmounts, tileRatios):
     "recipe category": "Smoothie",
     "recipe steps": steps_b,
     "prep time": getPrepTime(),
-    "cook time": getCookTime()}
+    "cook time": getCookTime(), "commonTileTypes":[mostCommonTileType, secondMostCommonTileType]}
 
     #print("final recipe:", recipe)
 
@@ -200,9 +212,9 @@ def stewRecipe(plantDictionary, ingredientAmounts, tileRatios):
      #find two most predominant tile types
     sortedValues = sorted(tileRatios, key=tileRatios.get, reverse=True)
     #print(sortedValues)
-    mostCommonTileType = sortedValues[0]
+    mostCommonTileType = getTileName(sortedValues[0])
     #print(mostCommonTileType)
-    secondMostCommonTileType = sortedValues[1]
+    secondMostCommonTileType = getTileName(sortedValues[1])
     #print(secondMostCommonTileType)
 
     #find plants from dictionary with those tile types
@@ -226,7 +238,7 @@ def stewRecipe(plantDictionary, ingredientAmounts, tileRatios):
     "recipe category": "Stew",
     "recipe steps": steps_b,
     "prep time": getPrepTime(),
-    "cook time": getCookTime()}
+    "cook time": getCookTime(), "commonTileTypes":[mostCommonTileType, secondMostCommonTileType]}
 
     #print("final recipe:", recipe)
 
@@ -307,7 +319,7 @@ def getCookTime():
 
 
 #call this as Main Method, picks random recipe function to run
-def pickRandomRecipe(functionNumbers):
+def pickRandomRecipe(functionNumbers, tileTypeRatios):
     switch = {
         1: soupRecipe(plantDictionary, ingredientAmounts, tileTypeRatios),
         2: smoothieRecipe(plantDictionary, ingredientAmounts, tileTypeRatios),
@@ -319,7 +331,7 @@ def pickRandomRecipe(functionNumbers):
 
 
 if __name__ == "__main__":
-    pickRandomRecipe(functionNumbers)
+    pickRandomRecipe(functionNumbers, tileTypeRatios)
 
 #    randomly pick a nunber functionNumbers list
 #    switch statement uses this randomly picked number for condition

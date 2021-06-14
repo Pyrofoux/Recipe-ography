@@ -1,7 +1,22 @@
+body
+{
+	font-family:Calibri, Lucida Console;
+}
+
+
+#wrapper
+{
+	display: flex;
+  justify-content: center;
+	font-family:Calibri, Lucida Console;
+}
+
 #cvs
 {
 	border:solid 4px black;
-	float:left;
+	/* float:left; */
+	display: inline-block;
+	margin-top:0px;
 }
 
 #sidebar
@@ -10,14 +25,26 @@
 	width: 360px;
 	height:590px;
 	border:solid 4px black;
-	float:left;
-	font-family:Calibri, Lucida Console;
+	/* float:left; */
 	padding-left:20px;
 	padding-right:20px;
 	padding-top:10px;
+	display: inline-block;
+	margin-top:0px;
 }
 
 #country_name
 {
 	text-align:center;
+}
+
+#sidebar_content
+{
+	display: none;
+}
+
+#title_page
+{
+	text-align:center;
+	font-size:36px;
 }
