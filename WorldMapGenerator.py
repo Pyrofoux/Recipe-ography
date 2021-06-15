@@ -197,30 +197,55 @@ def multiuse_desert_spread_rule(neighbour_count, input_value):
 
 #Define rules for how culture spread
 def culture_spread_rule(cult_neighbour_count, cultureDict, currValue, terrainType):
-    return_culture_id = 0
+    return_culture_id = currValue
     max_neighbours = 0
-    #Currently, adopt culture of any neighbour. If multiple neighbour cultures, pick the one with most neighbour tiles
-    for key in cultureDict:
-        #Adopt if most populous neighbour, but only if the tile is not water or culture can traverse water
-        if (cult_neighbour_count[cultureDict[key].culture_id]>max_neighbours and( (not terrainType==Terrain.WATER.value) or cultureDict[key].culture_can_traverse_water)):
-            return_culture_id = key
-            max_neighbours = cult_neighbour_count[cultureDict[key].culture_id]
-    
-    #Determine odds of spreading based on tile type
-    choice = random.uniform(0, 1)
-    #IF grassland or (Water and culture can traverse) 100% spread
-    if (terrainType==Terrain.GRASSLAND.value or terrainType==Terrain.WATER.value):
-        return return_culture_id
-    #If jungle, desert of snow, 50% chance of spreading
-    elif (terrainType==Terrain.DESERT.value or terrainType==Terrain.JUNGLE.value or terrainType==Terrain.SNOW.value):
-        if (choice<0.5):
+
+    #Stochastic selection of neighbour culture to spread
+    #Weighted to favour more common cultures
+
+    #Remove 0s from neighbour count
+    #print("Neighbours with zeroes: " + repr(cult_neighbour_count))
+    del cult_neighbour_count[0]
+    #print("Neighbours no zeroes: " + repr(cult_neighbour_count))
+
+    #Check if dictionary is empty
+    #Only run if value is 0
+    if (cult_neighbour_count and (currValue == 0)):
+        sum_neighbour = sum(cult_neighbour_count.values())
+        target = random.uniform(0,sum_neighbour+1)
+        curr_sum = 0
+        culture_selected = False
+        for key in cultureDict:
+            curr_sum += cult_neighbour_count[cultureDict[key].culture_id]
+            #print("Curr_Sum: " + repr(curr_sum) + " Target: " + repr(target))
+            if (curr_sum>target and (not culture_selected)):
+                culture_selected = True
+                return_culture_id = key
+
+
+        #for key in cultureDict:
+            #Adopt if most populous neighbour, but only if the tile is not water or culture can traverse water
+        #    if (cult_neighbour_count[cultureDict[key].culture_id]>max_neighbours and( (not terrainType==Terrain.WATER.value) or cultureDict[key].culture_can_traverse_water)):
+        #        return_culture_id = key
+        #        max_neighbours = cult_neighbour_count[cultureDict[key].culture_id]
+        
+        #Determine odds of spreading based on tile type
+        choice = random.uniform(0, 1)
+        #IF grassland or (Water and culture can traverse) 100% spread
+        if (terrainType==Terrain.GRASSLAND.value or terrainType==Terrain.WATER.value):
             return return_culture_id
-        else:
-            return currValue
-    #If Mountains, 10% chance of traverse
-    elif (terrainType==Terrain.MOUNTAIN.value):
-        if (choice<0.1):
-            return return_culture_id
+        #If jungle, desert of snow, 50% chance of spreading
+        elif (terrainType==Terrain.DESERT.value or terrainType==Terrain.JUNGLE.value or terrainType==Terrain.SNOW.value):
+            if (choice<0.5):
+                return return_culture_id
+            else:
+                return currValue
+        #If Mountains, 10% chance of traverse
+        elif (terrainType==Terrain.MOUNTAIN.value):
+            if (choice<0.1):
+                return return_culture_id
+            else:
+                return currValue
         else:
             return currValue
     else:
@@ -698,7 +723,7 @@ if __name__ == "__main__":
     thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
     final_culture_map = thirty_culture_spreads[0]
     Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
-    save_culture_history_gif(final_map,thirty_culture_spreads[1],test_cultures, (image_save_path+'NewCultureSpreadDemo.gif'))
+    save_culture_history_gif(final_map,thirty_culture_spreads[1],test_cultures, (image_save_path+'NewCultureSpreadDemo3.gif'))
 
 
     #display_world_int(test_culture_map)
