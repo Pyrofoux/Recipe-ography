@@ -86,7 +86,7 @@ def soupRecipe(plantDictionary, ingredientAmounts, tileRatios):
     steps_b = steps_a[0]
 
     recipe = {"ingredients": ingredientsList_b,
-    "recipe category": "Soup",
+    "recipe category": variation(["Soup","Hotpot","Mix","Medley"]),
     "recipe steps": steps_b,
     "prep time": getPrepTime(),
     "cook time": getCookTime(), "commonTileTypes":[mostCommonTileType, secondMostCommonTileType]}
@@ -113,7 +113,8 @@ def getStepsSoup(ingredients):
 
     stepOne = "Boil the " + ingredient1 + " and the " + ingredient2
     stepTwo = "Blend the cooked " + ingredient1 + " and the " + ingredient2
-    stepThree = "Serve with a sprinkle of " + ingredient3
+    stepThree = "Add a "+variation(["sprinkle of "+ingredient3, "touch of "+ingredient3+" cream", "bit of grilled "+ingredient3])
+    stepFour = "Must be served "+variation(["cold","hot","at room temperature","on ice"])
 
     stepsAndIngredientsList = [[stepOne, stepTwo, stepThree], ingredientsList]
 
@@ -155,7 +156,7 @@ def smoothieRecipe(plantDictionary, ingredientAmounts, tileRatios):
     steps_b = steps_a[0]
 
     recipe = {"ingredients": ingredientsList_b,
-    "recipe category": "Smoothie",
+    "recipe category": variation(["Smoothie","Juice","Cocktail","Nectar","Drink"]),
     "recipe steps": steps_b,
     "prep time": getPrepTime(),
     "cook time": getCookTime(), "commonTileTypes":[mostCommonTileType, secondMostCommonTileType]}
@@ -253,10 +254,10 @@ def getStepsStew(ingredients):
     ingredientsList = [ing1, ing2, ing3, ing4, ing5]
     #print("ingredients list ", ingredientsList)
 
-    stepOne = "Cut the " + ingredient1 + ", " + ingredient2 + " and " + ingredient3 + " in to cubes"
-    stepTwo = "Fry the " + ingredient4 + " for a few minutes, and then add the chopped " + ingredient1 + ", " + ingredient2 + " and " + ingredient3
-    stepThree = " Add broth of " + ingredient4 + " and leave to simmer until tender "
-    stepFour = "Once the " + ingredient1 + " is cooked through, serve with a side of " + ingredient5 + " bread"
+    stepOne = "Cut the " + ingredient1 + ", " + ingredient2 + " and " + ingredient3 + " into "+variation(["cubes","thin slices","thick slices"])+" ."
+    stepTwo = variation(["Fry","Boil","Grill"])+" the " + ingredient4 + " for a few minutes, and then add the chopped " + ingredient1 + ", " + ingredient2 + " and " + ingredient3
+    stepThree = " Add "+variation(["broth of", "chopped"])+" " + ingredient4 + " and leave to simmer until tender "
+    stepFour = "Once the " + ingredient1 + " is cooked through, serve with a side of " + ingredient5 + " "+variation(["grills","bread","slices","mash"])+"."
 
     stepsAndIngredientsList = [[stepOne, stepTwo, stepThree, stepFour], ingredientsList]
 
@@ -297,7 +298,8 @@ def getCookTime():
     possible_times = ["< 15","20 - 30","60+"]
     return random.choice(possible_times)+" minutes"
 
-
+def variation(wordList):
+    return random.choice(wordList)
 
 #Main method for soup recipe
 #soupRecipe(plantDictionary, ingredientAmounts, tileTypeRatios)

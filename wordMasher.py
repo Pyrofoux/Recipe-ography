@@ -88,8 +88,8 @@ def create_plant_library(originalplants, tiletypes, edibles, max_plants = 15):
             attributes_list.append([parent_A, parent_B])
 
             plant_dictionary.update({mashed_plant_name : attributes_list})
+            i+=1
 
-        i+=1
     return plant_dictionary
 
 #helper function to create a list of plant names to use as keys for the dictionary
