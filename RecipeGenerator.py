@@ -12,7 +12,7 @@ import numpy as np
 
 tileTypes = ["water", "grassland", "desert", "jungle", "mountain", "snow"] #for recipe title generator
 
-recipeCategories = ["soup", "stew", "curry", "bake", "smoothie"] #for recipe title generator
+#recipeCategories = ["soup", "stew", "curry", "bake", "smoothie"] #for recipe title generator
 
 functionNumbers = [1, 2, 3]
 
@@ -71,6 +71,8 @@ def soupRecipe(plantDictionary, ingredientAmounts, tileRatios):
         print(tileName, mostCommonTileType, secondMostCommonTileType, value)
         if(tileName == mostCommonTileType or tileName == secondMostCommonTileType):
             plantsToUse.append(plant)
+
+    random.shuffle(plantsToUse)
     print("plantsToUse = ",plantsToUse)
 
     ingredients = getIngredients(plantsToUse, plantDictionary)
@@ -253,7 +255,7 @@ def getStepsStew(ingredients):
 
     stepOne = "Cut the " + ingredient1 + ", " + ingredient2 + " and " + ingredient3 + " in to cubes"
     stepTwo = "Fry the " + ingredient4 + " for a few minutes, and then add the chopped " + ingredient1 + ", " + ingredient2 + " and " + ingredient3
-    stepThree = " Add broth of " + ingredient4 + " and leave to simmer for 40 minutes "
+    stepThree = " Add broth of " + ingredient4 + " and leave to simmer until tender "
     stepFour = "Once the " + ingredient1 + " is cooked through, serve with a side of " + ingredient5 + " bread"
 
     stepsAndIngredientsList = [[stepOne, stepTwo, stepThree, stepFour], ingredientsList]

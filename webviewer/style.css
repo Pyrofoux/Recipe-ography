@@ -17,6 +17,7 @@ body
 	/* float:left; */
 	display: inline-block;
 	margin-top:0px;
+	cursor:none;
 }
 
 #sidebar

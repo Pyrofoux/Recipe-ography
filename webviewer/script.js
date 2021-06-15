@@ -57,20 +57,24 @@ function init()
   cvs.addEventListener('click', mapClick);
   cvs.addEventListener('mousemove', mapHover);
 
-  drawMap();
+  drawMap(); //
   clearCountryInfo();
 
 }
 
 
-function drawMap()
+function drawMap(mouseCoords)
 {
+
+  //Terrain
   ctx.clearRect(0,0,cvs.width, cvs.height);
   for_map(terrain_map, function(tile_id, x, y){
 
     colorSquare(x,y, tyle2color[tile_id])
-  })
+  });
 
+
+  // Country highlighting
   for_map(culture_map, function(culture_id, x, y){
 
     if(culture_id > 0)
@@ -78,18 +82,35 @@ function drawMap()
       if(ui.culture_hover == culture_id || ui.culture_click == culture_id)
       {
         //colorSquare(x,y, "#7FFFD4",settings["culture_color_transparency_hover"])
-        colorSquare(x,y, culture_colors[culture_id],settings["culture_color_transparency_hover"])
+        colorSquare(x,y, culture_colors[culture_id%culture_colors.length],settings["culture_color_transparency_hover"])
       }
       else
       {
-        colorSquare(x,y, culture_colors[culture_id],settings["culture_color_transparency"])
+        colorSquare(x,y, culture_colors[culture_id%culture_colors.length],settings["culture_color_transparency"])
       }
 
     }
 
-  })
+  });
 
 
+  if(ui.culture_hover || ui.culture_click)
+  {
+    binocular_img = get("binoculars_surprised");
+  }
+  else
+  {
+      binocular_img = get("binoculars");
+  }
+
+  if(mouseCoords)
+  {
+    ctx.drawImage(binocular_img, mouseCoords.x-binocular_img.width/2, mouseCoords.y-binocular_img.height/2);
+  }
+
+
+  // Before we had the binocular images
+  /*
   if(ui.culture_hover)
   {
     cvs.style.cursor = "pointer";
@@ -97,7 +118,7 @@ function drawMap()
   else
   {
     cvs.style.cursor = "default";
-  }
+  }*/
 
 }
 
@@ -138,15 +159,23 @@ function getCultureFromCoord(coords)
 function mapClick(e)
 {
   let coords= getCoords(e, settings.cellSize);
-  ui.culture_click = getCultureFromCoord(coords);
-  drawMap();
+  let targetCulture = getCultureFromCoord(coords);
+  if(ui.culture_click == targetCulture)
+  {
+    ui.culture_click = 0;
+  }
+  else
+  {
+    ui.culture_click = targetCulture;
+  }
+  let mouseCoords = {x:e.offsetX,y:e.offsetY};
+  drawMap(mouseCoords);
 }
 
 function mapHover(e)
 {
   let coords= getCoords(e, settings.cellSize);
   ui.culture_hover = getCultureFromCoord(coords);
-  drawMap();
 
   if(ui.culture_hover!= 0)
   {
@@ -160,6 +189,9 @@ function mapHover(e)
   {
     clearCountryInfo();
   }
+
+  let mouseCoords = {x:e.offsetX,y:e.offsetY};
+  drawMap(mouseCoords);
 
 
 }
@@ -226,7 +258,7 @@ function gen_tooltip(name, biome, edibles, parents)
 function splitHalf(word)
 {
   l = word.length;
-  return [word.substr(0,l/2), word.substr(l/2)];
+  return [word.substr(0,Math.floor(l/2)), word.substr(Math.floor(l/2))];
 }
 
 function capitalize(string)

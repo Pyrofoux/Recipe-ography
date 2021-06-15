@@ -4,7 +4,7 @@ from CultureNameGen import *
 
 
 
-original_plants = ["dandelion", "spinach", "banana", "parsley", "courgette", "garlic","carrot","ananas","orange","pumpkin","radish"
+original_plants = ["dandelion", "spinach", "banana", "parsley", "courgette", "garlic","carrot","ananas","orange","pumpkin","radish",
 "tomato", "strawberry", "melon", "cucumber", "mushroom", "rosemary", "mint", "lettuce", "asparagus", "nettle","potato","broccoli", "apple"]
 
 edible_parts =["leaf", "stem", "bud", "root"]
