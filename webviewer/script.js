@@ -200,6 +200,7 @@ function mapHover(e)
 function displayCountryInfo(cultureId)
 {
   get("sidebar_content").style.display = "inline-block";
+  get("startup_instructions").style.display = "none";
 
   recipe = world_data.recipes[cultureId];
 
@@ -228,6 +229,7 @@ function displayCountryInfo(cultureId)
 function clearCountryInfo()
 {
   get("sidebar_content").style.display = "none";
+  get("startup_instructions").style.display = "inline-block";
 }
 
 function add_tooltip(sentence)
