@@ -48,10 +48,14 @@ class Culture:
 def water_rules(neighbour_count):
     return_tiletype = Terrain.WATER.value
     #If four or less neighbours are water, turn into grassland with X chance
-    if(neighbour_count[Terrain.WATER.value]<=4):
-        choice = random.uniform(0, 1)
-        if (choice<0.5):    
-            return_tiletype = Terrain.GRASSLAND.value
+    #if(neighbour_count[Terrain.WATER.value]<=4):
+    #    choice = random.uniform(0, 1)
+    #    if (choice<0.5):    
+    #        return_tiletype = Terrain.GRASSLAND.value
+    return_tiletype = multiuse_jungle_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_desert_spread_rule(neighbour_count,return_tiletype)
+    return_tiletype = multiuse_snow_spread_rule(neighbour_count, return_tiletype)
+    return_tiletype = multiuse_grass_spread_rule(neighbour_count,return_tiletype)
     return return_tiletype
 
 def grassland_rules(neighbour_count):
@@ -101,14 +105,14 @@ def jungle_rules(neighbour_count):
 def mountain_rules(neighbour_count):
     return_tiletype = Terrain.MOUNTAIN.value
     #If theres too many mountains around,  x %chance of turn into most common neighbour
-    if(neighbour_count[Terrain.MOUNTAIN.value]>=3):
+    if(neighbour_count[Terrain.MOUNTAIN.value]>=4):
         choice = random.uniform(0, 1)
-        if (choice<0.6):
+        if (choice<0.5):
             return_tiletype= get_most_commom_tiletype_from_neighbours(neighbour_count, Terrain.MOUNTAIN.value)
     #Flat chance for any mountain to destroy itself
     else:
         choice = random.uniform(0, 1)
-        if (choice<0.3):
+        if (choice<0.1):
             return_tiletype = get_most_commom_tiletype_from_neighbours(neighbour_count, Terrain.MOUNTAIN.value)
     return_tiletype = multiuse_water_spread_rule(neighbour_count,return_tiletype)
     return return_tiletype
@@ -125,10 +129,10 @@ def snow_rules(neighbour_count):
 
 def multiuse_mountain_spawn_and_chain_rule(neighbour_count, input_value):
     return_tiletype = input_value
-    #If theres 2 or 3 local mountains, chance of becoming one
+    #If theres 1, 2 or 3 local mountains, chance of becoming one
     if(neighbour_count[Terrain.MOUNTAIN.value] in (1,2,3) ):
         choice = random.uniform(0, 1)
-        if (choice<0.1):
+        if (choice<0.05):
             return_tiletype = Terrain.MOUNTAIN.value
     #If 2 or less neighbouring tiles are water, chance of spawning mountains
     if(neighbour_count[Terrain.WATER.value]<=1):
@@ -139,10 +143,13 @@ def multiuse_mountain_spawn_and_chain_rule(neighbour_count, input_value):
 
 #If more than X water tiles near by, X% chance of spreading
 def multiuse_water_spread_rule(neighbour_count, input_value):
+    #Rather than a fixed number, instead spread if more than half neighbours are water
+    #This is to stop water being erradicated at the map boundry
     if(neighbour_count[Terrain.WATER.value]>=4):
+    #if(neighbour_count.most_common(1)[0][0] == Terrain.WATER.value):
         choice = random.uniform(0, 1)
         #Base odds on amount of tiles of type nearby
-        bound = (0.05 *neighbour_count[Terrain.WATER.value])
+        bound = (0.06 *neighbour_count[Terrain.WATER.value])
         if (choice<bound):
             return Terrain.WATER.value
     #Default, return self
@@ -159,10 +166,10 @@ def multiuse_grass_spread_rule(neighbour_count, input_value):
     return input_value
 
 def multiuse_snow_spread_rule(neighbour_count, input_value):
-    if(neighbour_count[Terrain.SNOW.value]>=3):
+    if(neighbour_count[Terrain.SNOW.value]>=4):
         choice = random.uniform(0, 1)
         #Base odds on amount of tiles of type nearby
-        bound = (0.1 *neighbour_count[Terrain.SNOW.value])
+        bound = (0.15 *neighbour_count[Terrain.SNOW.value])
         if (choice>bound):
             return Terrain.SNOW.value
     #Default, return self
@@ -172,7 +179,7 @@ def multiuse_jungle_spread_rule(neighbour_count, input_value):
     if(neighbour_count[Terrain.JUNGLE.value]>=3):
         choice = random.uniform(0, 1)
         #Base odds on amount of tiles of type nearby
-        bound = (0.15 *neighbour_count[Terrain.JUNGLE.value])
+        bound = (0.12 *neighbour_count[Terrain.JUNGLE.value])
         if (choice>bound):
             return Terrain.JUNGLE.value
     #Default, return self
@@ -182,7 +189,7 @@ def multiuse_desert_spread_rule(neighbour_count, input_value):
     if(neighbour_count[Terrain.DESERT.value]>=3):
         choice = random.uniform(0, 1)
         #Base odds on amount of tiles of type nearby
-        bound = (0.15 *neighbour_count[Terrain.DESERT.value])
+        bound = (0.12 *neighbour_count[Terrain.DESERT.value])
         if (choice>bound):        
             return Terrain.DESERT.value
     #Default, return self
@@ -198,12 +205,24 @@ def culture_spread_rule(cult_neighbour_count, cultureDict, currValue, terrainTyp
         if (cult_neighbour_count[cultureDict[key].culture_id]>max_neighbours and( (not terrainType==Terrain.WATER.value) or cultureDict[key].culture_can_traverse_water)):
             return_culture_id = key
             max_neighbours = cult_neighbour_count[cultureDict[key].culture_id]
+    
+    #Determine odds of spreading based on tile type
     choice = random.uniform(0, 1)
-    if (choice<(0.1*max_neighbours)):
+    #IF grassland or (Water and culture can traverse) 100% spread
+    if (terrainType==Terrain.GRASSLAND.value or terrainType==Terrain.WATER.value):
         return return_culture_id
-    #Culture death chance
-    #elif(choice>0.8):
-    #    return 0
+    #If jungle, desert of snow, 50% chance of spreading
+    elif (terrainType==Terrain.DESERT.value or terrainType==Terrain.JUNGLE.value or terrainType==Terrain.SNOW.value):
+        if (choice<0.5):
+            return return_culture_id
+        else:
+            return currValue
+    #If Mountains, 10% chance of traverse
+    elif (terrainType==Terrain.MOUNTAIN.value):
+        if (choice<0.1):
+            return return_culture_id
+        else:
+            return currValue
     else:
         return currValue
 
@@ -620,7 +639,13 @@ def get_tile_ratios_for_cultures(mapMatrix, cultureMatrix, cultureList):
         for i in range(MAPSIZE):
             for j in range(MAPSIZE):
                 if (cultureMatrix[i][j]==culture.culture_id ):
-                    culture_tile_count[mapMatrix[i][j]]+=1
+                    #Adjust return ratios based on tile type
+                    if (mapMatrix[i][j]==Terrain.GRASSLAND.value):
+                        culture_tile_count[mapMatrix[i][j]]+=1
+                    elif (mapMatrix[i][j] == Terrain.JUNGLE.value or mapMatrix[i][j] == Terrain.DESERT.value or mapMatrix[i][j] == Terrain.SNOW.value):
+                        culture_tile_count[mapMatrix[i][j]]+=2
+                    elif (mapMatrix[i][j] == Terrain.MOUNTAIN.value):
+                        culture_tile_count[mapMatrix[i][j]]+=5
         #print("Pre normalised:")
         #print(culture_tile_count)
         #Get sum total, for ensuring values add up to 100
@@ -660,7 +685,7 @@ if __name__ == "__main__":
     final_map = twenty_gen_map[len(twenty_gen_map)-1]
 
     gen_img_from_map_matrix(final_map).show()
-    save_terrain_history_gif(twenty_gen_map, (image_save_path+'MountainTest2.gif'))
+    save_terrain_history_gif(twenty_gen_map, (image_save_path+'LandSpreadTest10.gif'))
 
     test_cultures = []
     test_cultures.append(Culture(1, "The Shire", [250,10,10], False))
@@ -668,26 +693,31 @@ if __name__ == "__main__":
     test_cultures.append(Culture(3, "Rohan", [255,234,0], False))
     test_cultures.append(Culture(4, "The Elves", [255,36,237], True))
 
-    #test_culture_map = gen_culture_start_map(final_map, test_cultures)
+    #TESTING CULTURE SPREAD
+    test_culture_map = gen_culture_start_map(final_map, test_cultures)
+    thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,200)
+    final_culture_map = thirty_culture_spreads[0]
+    Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
+    save_culture_history_gif(final_map,thirty_culture_spreads[1],test_cultures, (image_save_path+'NewCultureSpreadDemo.gif'))
+
 
     #display_world_int(test_culture_map)
-
     #culture_rgb_map = get_culture_and_terrain_rgb(final_map, test_culture_map, test_cultures)
 
     #Image.fromarray((culture_rgb_map)).show()
 
     #print(test_culture_map.shape[0])
 
-    thirty_culture_spreads = generate_culture_matrix(final_map,test_cultures,100)
 
-    final_culture_map = thirty_culture_spreads[0]
+
+    #final_culture_map = thirty_culture_spreads[0]
 
     #display_world_int(final_culture_map)
 
-    Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
-    save_culture_history_gif(final_map,thirty_culture_spreads[1],test_cultures, (image_save_path+'CultureSpreadDemo.gif'))
+    #Image.fromarray(get_culture_and_terrain_rgb(final_map,final_culture_map,test_cultures)).show()
+    #save_culture_history_gif(final_map,thirty_culture_spreads[1],test_cultures, (image_save_path+'CultureSpreadDemo.gif'))
 
-    print(get_tile_ratios_for_cultures(final_map,final_culture_map,test_cultures))
+    #print(get_tile_ratios_for_cultures(final_map,final_culture_map,test_cultures))
 
     #TESTING FULLY RANDOM MAP GENERATION
 
