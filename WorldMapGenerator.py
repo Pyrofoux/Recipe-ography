@@ -50,7 +50,7 @@ def water_rules(neighbour_count):
     #If four or less neighbours are water, turn into grassland with X chance
     #if(neighbour_count[Terrain.WATER.value]<=4):
     #    choice = random.uniform(0, 1)
-    #    if (choice<0.5):    
+    #    if (choice<0.5):
     #        return_tiletype = Terrain.GRASSLAND.value
     return_tiletype = multiuse_jungle_spread_rule(neighbour_count,return_tiletype)
     return_tiletype = multiuse_desert_spread_rule(neighbour_count,return_tiletype)
@@ -190,7 +190,7 @@ def multiuse_desert_spread_rule(neighbour_count, input_value):
         choice = random.uniform(0, 1)
         #Base odds on amount of tiles of type nearby
         bound = (0.12 *neighbour_count[Terrain.DESERT.value])
-        if (choice>bound):        
+        if (choice>bound):
             return Terrain.DESERT.value
     #Default, return self
     return input_value
@@ -388,6 +388,28 @@ def tidy_culture_on_water(mapMatrix, cultureMatrix):
             else:
                 updatedCultureMap[i][j] = cultureMatrix[i][j]
     return updatedCultureMap
+
+
+#Remove holes in the cultureMatrix
+def tidy_culture_holes(cultureMatrix):
+    updatedCultureMap = np.zeros((MAPSIZE, MAPSIZE), dtype=int)
+
+    for i in range(MAPSIZE):
+        for j in range(MAPSIZE):
+
+            neighbours_count = retrieve_neighbours(i,j,cultureMatrix)
+            updatedCultureMap[i][j] = cultureMatrix[i][j]
+            
+            if cultureMatrix[i][j] == 0:
+
+                for culture_id in neighbours_count:
+                    if neighbours_count[culture_id] >= 4 and culture_id > 0:
+                        updatedCultureMap[i][j] = culture_id
+
+
+    return updatedCultureMap
+
+
 
 def gen_tiletype_count_dictionary():
     tileDict = {}
@@ -653,7 +675,9 @@ def generate_terrain_matrix(startMapType, iterationCount):
 def generate_culture_matrix(terrainMap, cultureList, iterationCount):
     culture_start_positions = gen_culture_start_map(terrainMap, cultureList)
     fullHistory = culture_spread_iterations(terrainMap,culture_start_positions, cultureList, iterationCount)
-    return (tidy_culture_on_water(terrainMap, fullHistory[-1]),fullHistory)
+    tidied_water = tidy_culture_on_water(terrainMap, fullHistory[-1])
+    tidied_holes = tidy_culture_holes(tidied_water)
+    return (tidied_holes,fullHistory)
 
 
 #Get tile ratios from culture
@@ -677,7 +701,7 @@ def get_tile_ratios_for_cultures(mapMatrix, cultureMatrix, cultureList):
         #Get sum total, for ensuring values add up to 100
         sumValues = 0
         for key in culture_tile_count:
-            sumValues += culture_tile_count[key]  
+            sumValues += culture_tile_count[key]
         #Adjust so values add up to 100
         for key in culture_tile_count:
             culture_tile_count[key] = (culture_tile_count[key]/sumValues)*100
@@ -686,8 +710,8 @@ def get_tile_ratios_for_cultures(mapMatrix, cultureMatrix, cultureList):
         #Add to output
         output[culture.culture_id] = culture_tile_count
     return output
-        
-                
+
+
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
