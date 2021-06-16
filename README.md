@@ -1,6 +1,6 @@
 # *Cuisine du Monde* -- The Recipe-ography Machine
 
-_A recipe generator, embeded within a fictional world, with fictional ingredients._
+_A recipe generator, embedded within a generated world, with generated ingredients._
 
 
 ![](screenshots/screenshot1.png)
