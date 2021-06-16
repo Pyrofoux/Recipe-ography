@@ -146,6 +146,7 @@ def smoothieRecipe(plantDictionary, ingredientAmounts, tileRatios):
         if(tile == mostCommonTileType or tile == secondMostCommonTileType):
             plantsToUse.append(plant)
     #print(plantsToUse)
+    random.shuffle(plantsToUse)
 
     ingredients = getIngredients(plantsToUse, plantDictionary)
     ingredientsList_a = getStepsSmoothie(ingredients)
@@ -218,6 +219,7 @@ def stewRecipe(plantDictionary, ingredientAmounts, tileRatios):
             plantsToUse.append(plant)
     #print(plantsToUse)
 
+    random.shuffle(plantsToUse)
     ingredients = getIngredients(plantsToUse, plantDictionary)
     ingredientsList_a = getStepsStew(ingredients)
     ingredientsList_b = ingredientsList_a[1]

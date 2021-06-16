@@ -294,3 +294,6 @@ if __name__ == "__main__":
     # print(recipeNameFromCuisine(Cuisine.French, syllable_max_length = 1))
 
     generateNameForEachCuisine()
+
+    for i in range(20):
+        print(capitalize(cityNameFromCuisine(Cuisine.Japanese)))
