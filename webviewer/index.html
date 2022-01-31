@@ -8,7 +8,11 @@
   </head>
   <body>
 
-    <h1 id="title_page">*:. RECIPE-OGRAPHY .:*</h1>
+    <h1 id="title_page">*:. RECIPE-OGRAPHY .:*
+      <input style="width:30em;" type="number" id="world_id_picker" name="world_id_picker" min="1" max="60"
+      value=""
+      placeholder="To visit another world, pick a number between 1 and 60" onchange="load_pregenerated(this.value)"></h1>
+
   <span id="wrapper">
   	<canvas id="cvs"></canvas>
     <div id="sidebar">

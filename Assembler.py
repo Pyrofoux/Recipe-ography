@@ -86,7 +86,7 @@ def generateWorldFile(specific_id = None):
 
 
     json_formatted = json.dumps(output)
-    javascript_content = "let world_data = "+json_formatted
+    javascript_content = "var world_data = "+json_formatted
 
     with open(output_file_name, 'w+') as outfile:
         outfile.write(javascript_content)

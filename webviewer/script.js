@@ -30,8 +30,8 @@ culture_colors = ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92
 
 let cvs = get("cvs");
 let ctx = cvs.getContext("2d");
-let terrain_map = world_data.terrain_map;
-let culture_map = world_data.culture_map;
+var terrain_map = world_data.terrain_map;
+var culture_map = world_data.culture_map;
 
 let ui = {};
 ui.culture_hover = false;
@@ -56,9 +56,32 @@ function init()
   cvs.height = settings.cellSize*world_data.terrain_height;
   cvs.addEventListener('click', mapClick);
   cvs.addEventListener('mousemove', mapHover);
-
+  world_id_picker.value="";
   drawMap(); //
   clearCountryInfo();
+
+}
+
+
+function load_pregenerated(world_id)
+{
+  //world_id comes from a number input element
+  world_id = parseInt(world_id);
+  world_id = Math.min(60, Math.max(0, world_id));
+  world_id = world_id ? world_id : rand(1, 60);
+
+  world_id_picker.value = world_id;
+
+  var script = document.createElement("script");
+  script.setAttribute("src", "./pregenerated/world_data_"+world_id+".js");
+  script.onload = function()
+  {
+      terrain_map = world_data.terrain_map;
+      culture_map = world_data.culture_map;
+      drawMap();
+      clearCountryInfo();
+  }
+  document.body.appendChild(script);
 
 }
 
