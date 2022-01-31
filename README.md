@@ -5,6 +5,9 @@ _A recipe generator, embedded within a generated world, with generated ingredien
 
 ![](screenshots/screenshot1.png)
 
+## [Interactive Demo](https://pyrofoux.github.io/Recipe-ography/)
+
+Explore some pre-generated examples [here](https://pyrofoux.github.io/Recipe-ography/).
 
 ## Installing instructions
 1. You'll need Python, with pip installed
